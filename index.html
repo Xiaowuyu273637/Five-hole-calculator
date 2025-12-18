@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五孔计算器</title>
+    
+    <!-- PWA支持 -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#4285f4">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="专业的五孔计算工具，支持多种模板和组合计算">
+    
+    <style>
+        /* 保持原有样式不变 */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+            position: relative;
+            background: #f9f9f9;
+            min-height: 100vh;
+        }
+        .calculator {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #4285f4;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        .input-section {
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px; /* 防止iOS缩放 */
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            width: 100%;
+            font-size: 0.9em;
+            min-height: 44px; /* 触摸友好 */
+        }
+        .btn-red {
+            background: #ea4335;
+        }
+        .btn-green {
+            background: #0f9d58;
+        }
+        .btn-purple {
+            background: #9c27b0;
+        }
+        .btn-orange {
+            background: #ff9800;
+        }
+        #points-container {
+            margin: 10px 0;
+        }
+        .point-item {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            cursor: move;
+        }
+        .point-item.dragging {
+            opacity: 0.5;
+            background: #d0d0d0;
+        }
+        .point-item input {
+            flex: 1;
+            min-width: 100px;
+        }
+        .point-item button {
+            flex: 0 0 auto;
+            width: auto;
+            padding: 8px 12px;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .export-buttons button {
+            flex: 1;
+            min-width: 120px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85em;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-break: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        /* 画布样式 */
+        canvas {
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            display: block;
+            background: white;
+        }
+        
+        .toggle-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .toggle-btn {
+            flex: 1;
+        }
+        
+        /* 模板面板样式 */
+        .template-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            overflow: hidden;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .template-panel.collapsed {
+            transform: translateX(420px);
+            opacity: 0;
+        }
+        .template-header {
+            background: #4285f4;
+            color: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .template-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .template-content {
+            padding: 15px;
+        }
+        .template-group {
+            margin-bottom: 20px;
+        }
+        .template-group h4 {
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .template-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .template-buttons button {
+            flex: 1;
+            min-width: 140px;
+            padding: 8px 10px;
+            font-size: 0.85em;
+        }
+        
+        /* 多模板组合样式 */
+        .multi-template-combination {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .template-select-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .template-select-row select {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .template-select-row button {
+            flex: 0 0 auto;
+            width: auto;
+            padding: 8px 12px;
+        }
+        .selected-templates {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .selected-template-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .selected-template-item:last-child {
+            border-bottom: none;
+        }
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .template-panel {
+                width: 350px;
+                right: 10px;
+            }
+            body {
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .point-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .point-item input, .point-item button {
+                width: 100%;
+            }
+            .template-panel {
+                width: 90%;
+                right: 5%;
+                left: 5%;
+            }
+            .template-buttons button {
+                min-width: 100%;
+            }
+            .template-select-row {
+                flex-direction: column;
+            }
+            .export-buttons button {
+                min-width: 100%;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+        
+        /* 触摸优化 */
+        button:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+            transition: all 0.1s;
+        }
+        
+        /* 安装提示 */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4285f4;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading.active {
+            display: flex;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
+        }
+        footer a {
+            color: #4285f4;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+        }
+        footer a:hover {
+            color: #0d47a1;
+            text-decoration: underline;
+        }
+        footer .footer-text {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 安装提示 -->
+    <div class="install-prompt" id="installPrompt" onclick="installApp()">
+        📱 添加到桌面使用更便捷
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- 模板面板 -->
+    <div class="template-panel collapsed">
+        <div class="template-header" onclick="toggleTemplatePanel()">
+            <h3>模板库</h3>
+        </div>
+        <div class="template-content">
+            <div class="template-group">
+                <h4>主轴模板</h4>
+                <div class="template-buttons">
+                    <button onclick="loadTemplate('主轴24', true)">主轴24</button>
+                    <button onclick="loadTemplate('主轴26.3', true)">主轴26.3</button>
+                    <button onclick="loadTemplate('主轴27.7', true)">主轴27.7</button>
+                    <button onclick="loadTemplate('主轴28.7', true)">主轴28.7</button>
+                    <button onclick="loadTemplate('主轴33', true)">主轴33</button>
+                    <button onclick="loadTemplate('主轴37.2', true)">主轴37.2</button>
+                    <button onclick="loadTemplate('特别版28.7', true)">特别版28.7</button>
+                    <button onclick="loadTemplate('特别版33', true)">特别版33</button>
+                </div>
+            </div>
+            
+            <div class="template-group">
+                <h4>下轴模板</h4>
+                <div class="template-buttons">
+                    <button onclick="loadTemplate('下轴24', true)">下轴24</button>
+                    <button onclick="loadTemplate('下轴26.3', true)">下轴26.3</button>
+                    <button onclick="loadTemplate('下轴27.7', true)">下轴27.7</button>
+                    <button onclick="loadTemplate('下轴28.7', true)">下轴28.7</button>
+                    <button onclick="loadTemplate('下轴33', true)">下轴33</button>
+                    <button onclick="loadTemplate('下轴特别版33', true)">下轴特别版33</button>
+                </div>
+            </div>
+            
+            <div class="template-group">
+                <h4>附加模板</h4>
+                <div class="template-buttons">
+                    <button onclick="loadTemplate('120410定位孔', false)">120410定位孔</button>
+                    <button onclick="loadTemplate('111810排气孔', false)">111810排气孔</button>
+                    <button onclick="loadTemplate('111810沉孔', false)">111810沉孔</button>
+                    <button onclick="loadTemplate('339810沉孔', false)">339810沉孔</button>
+                    <button onclick="loadTemplate('339810沉孔2', false)">339810沉孔2</button>
+                    <button onclick="showMoreTemplates()" class="btn-purple">更多模板...</button>
+                </div>
+            </div>
+            
+            <div class="template-group">
+                <h4>多模板组合</h4>
+                <div class="multi-template-combination">
+                    <div class="template-select-row">
+                        <select id="template-select">
+                            <option value="">选择模板添加到组合</option>
+                            <!-- 主轴模板 -->
+                            <optgroup label="主轴模板">
+                                <option value="主轴24">主轴24</option>
+                                <option value="主轴26.3">主轴26.3</option>
+                                <option value="主轴27.7">主轴27.7</option>
+                                <option value="主轴28.7">主轴28.7</option>
+                                <option value="主轴33">主轴33</option>
+                                <option value="主轴37.2">主轴37.2</option>
+                                <option value="特别版28.7">特别版28.7</option>
+                                <option value="特别版33">特别版33</option>
+                            </optgroup>
+                            <!-- 下轴模板 -->
+                            <optgroup label="下轴模板">
+                                <option value="下轴24">下轴24</option>
+                                <option value="下轴26.3">下轴26.3</option>
+                                <option value="下轴27.7">下轴27.7</option>
+                                <option value="下轴28.7">下轴28.7</option>
+                                <option value="下轴33">下轴33</option>
+                                <option value="下轴特别版33">下轴特别版33</option>
+                            </optgroup>
+                            <!-- 附加模板 -->
+                            <optgroup label="附加模板">
+                                <option value="120410定位孔">120410定位孔</option>
+                                <option value="111810排气孔">111810排气孔</option>
+                                <option value="111810沉孔">111810沉孔</option>
+                                <option value="339810沉孔">339810沉孔</option>
+                                <option value="339810沉孔2">339810沉孔2</option>
+                            </optgroup>
+                        </select>
+                        <button onclick="addTemplateToCombination()" class="btn-green">添加</button>
+                    </div>
+                    
+                    <div class="selected-templates" id="selected-templates">
+                        <div style="text-align: center; color: #999; padding: 10px;">
+                            暂无选择的模板
+                        </div>
+                    </div>
+                    
+                    <div class="template-actions">
+                        <button onclick="loadMultiTemplateCombination()" class="btn-purple">应用组合模板</button>
+                        <button onclick="clearTemplateCombination()" class="btn-red">清空组合</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="calculator">
+        <h2>五孔计算器</h2>
+        
+        <div class="toggle-container">
+            <button id="toggleCanvasBtn" onclick="toggleCanvas()" class="toggle-btn btn-green">隐藏图形</button>
+            <button onclick="reversePoints()" class="toggle-btn">反转顺序</button>
+            <button onclick="toggleTemplatePanel()" class="toggle-btn btn-purple">模板库</button>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label>圆心 (固定点):</label>
+                <div>(0, 0)</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="startX">起点 X:</label>
+                <input type="number" id="startX" placeholder="X坐标" step="0.1" value="0">
+                <label for="startY">起点 Y:</label>
+                <input type="number" id="startY" placeholder="Y坐标" step="0.1" value="-35">
+                <button onclick="updateStartPoint()" class="btn-green">更新起点</button>
+            </div>
+            
+            <div class="input-group">
+                <label>添加路径点：</label>
+                <input type="number" id="newX" placeholder="X坐标" step="0.1">
+                <input type="number" id="newY" placeholder="Y坐标" step="0.1">
+                <button onclick="addPoint()">添加点</button>
+                <button onclick="clearAll()" class="btn-red">清空所有点</button>
+            </div>
+        </div>
+        
+        <div id="points-container"></div>
+        
+        <div class="export-buttons">
+            <button onclick="exportAsImage()">导出为图片</button>
+            <button onclick="exportAsCSV()">导出为CSV表格</button>
+            <button onclick="exportAsHTML()">导出为HTML表格</button>
+        </div>
+        
+        <div id="results">
+            <h3>计算结果：</h3>
+            <table id="result-table">
+                <thead>
+                    <tr>
+                        <th>扇形</th>
+                        <th>起点坐标</th>
+                        <th>终点坐标</th>
+                        <th>圆心到点距离</th>
+                        <th>角度(°)</th>
+                        <th>直径</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <!-- 主画布 -->
+        <canvas id="diagram"></canvas>
+    </div>
+
+    <script>
+        // 全局数据
+        const O = { x: 0, y: 0 }; // 圆心（固定点）
+        let A = { x: 0, y: -35 }; // 起点（可修改）
+        let points = []; // 存储所有路径点
+        let canvasVisible = true;
+        let dragItem = null;
+        let product = Math.abs(A.y) * 2; // 积数 = 起点Y的绝对值×2
+        let isCombinationMode = false; // 是否组合模式
+        let selectedTemplates = []; // 存储选择的模板
+        let deferredPrompt = null; // PWA安装提示
+        
+        // 模板数据
+        const templates = {
+            // 主轴模板
+            '主轴24': {
+                points: [
+                    { x: 24, y: -8.7 },
+                    { x: 16.6, y: 19.3 },
+                    { x: 4, y: 19.3 },
+                    { x: -18.3, y: 17.8 },
+                    { x: -24, y: -8.7 }
+                ],
+                origin: { x: 0, y: -25.5 }
+            },
+            '主轴26.3': {
+                points: [
+                    { x: 26.3, y: -9.6 },
+                    { x: 18.2, y: 21.4 },
+                    { x: -20.1, y: 19.4 },
+                    { x: -26.3, y: -9.6 }
+                ],
+                origin: { x: 0, y: -28 }
+            },
+            '主轴27.7': {
+                points: [
+                    { x: 27.7, y: -10.2 },
+                    { x: 19, y: 22.6 },
+                    { x: 3.8, y: 21 },
+                    { x: -21.5, y: 20.2 },
+                    { x: -27.7, y: -10.2 }
+                ],
+                origin: { x: 0, y: -29.5 }
+            },
+            '主轴28.7': {
+                points: [
+                    { x: 28.7, y: -10.4 },
+                    { x: 19.6, y: 23.4 },
+                    { x: 4.6, y: 22.8 },
+                    { x: -21.9, y: 21.2 },
+                    { x: -28.7, y: -10.4 }
+                ],
+                origin: { x: 0, y: -30.5 }
+            },
+            '主轴33': {
+                points: [
+                    { x: 33, y: -11 },
+                    { x: 22, y: 27 },
+                    { x: 4.8, y: 22.9 },
+                    { x: -24.4, y: 25.1 },
+                    { x: -33, y: -11 }
+                ],
+                origin: { x: 0, y: -35 }
+            },
+            '主轴37.2': {
+                points: [
+                    { x: 37.2, y: -11.9 },
+                    { x: 24.4, y: 30.4 },
+                    { x: 4.8, y: 26.3 },
+                    { x: -27.6, y: 27.6 },
+                    { x: -37.2, y: -11.9 }
+                ],
+                origin: { x: 0, y: -39 }
+            },
+            '特别版28.7': {
+                points: [
+                    { x: 16.1, y: -25.4 },
+                    { x: 28.7, y: -10.4 },
+                    { x: 21.2, y: 21.9 },
+                    { x: -4.6, y: 22.8 },
+                    { x: -19.6, y: 23.4 },
+                    { x: -28.7, y: -10.4 },
+                    { x: -16.1, y: -25.4 }
+                ],
+                origin: { x: 0, y: -30.5 }
+            },
+            '特别版33': {
+                points: [
+                    { x: 19, y: -27.7 },
+                    { x: 33, y: -11 },
+                    { x: 22, y: 27 },
+                    { x: 4.6, y: 24.5 },
+                    { x: -24.4, y: 25.1 },
+                    { x: -33, y: -11 },
+                    { x: -19, y: -27.7 }
+                ],
+                origin: { x: 0, y: -35 }
+            },
+            
+            // 下轴模板
+            '下轴24': {
+                points: [
+                    { x: 24, y: -8.7 },
+                    { x: 18.7, y: 17.8 },
+                    { x: -16.6, y: 19.3 },
+                    { x: -24, y: -8.7 }
+                ],
+                origin: { x: 0, y: -25.5 }
+            },
+            '下轴26.3': {
+                points: [
+                    { x: 26.3, y: -9.6 },
+                    { x: 20.1, y: 19.4 },
+                    { x: -4, y: 18.6 },
+                    { x: -18, y: 21.4 },
+                    { x: -26.3, y: 9.6 }
+                ],
+                origin: { x: 0, y: -28 }
+            },
+            '下轴27.7': {
+                points: [
+                    { x: 27.7, y: -10.2 },
+                    { x: 21.5, y: 20.2 },
+                    { x: -3.8, y: 21 },
+                    { x: -19, y: 22.6 },
+                    { x: -27.7, y: -10.2 }
+                ],
+                origin: { x: 0, y: -29.5 }
+            },
+            '下轴28.7': {
+                points: [
+                    { x: 28.7, y: -10.4 },
+                    { x: 21.2, y: 21.9 },
+                    { x: -4.6, y: 22.8 },
+                    { x: -19.6, y: 23.4 },
+                    { x: -28.7, y: -10.4 }
+                ],
+                origin: { x: 0, y: -30.5 }
+            },
+            '下轴33': {
+                points: [
+                    { x: 33, y: -11 },
+                    { x: 24, y: 25.3 },
+                    { x: -4.6, y: 25.9 },
+                    { x: -22, y: 27 },
+                    { x: -33, y: -11 }
+                ],
+                origin: { x: 0, y: -35 }
+            },
+            '下轴特别版33': {
+                points: [
+                    { x: 19, y: -27.7 },
+                    { x: 33, y: -11 },
+                    { x: 24.4, y: 25.1 },
+                    { x: -4.6, y: 24.5 },
+                    { x: -22, y: 27 },
+                    { x: -33, y: -11 },
+                    { x: -19, y: -27.7 }
+                ],
+                origin: { x: 0, y: -35 }
+            },
+            
+            // 附加模板
+            '120410定位孔': { points: [{ x: -35, y: 0 }], origin: null },
+            '111810排气孔': { points: [{ x: 18.6, y: -18.7 }, { x: -15.3, y: -21.2 }], origin: null },
+            '111810沉孔': { points: [{ x: 23.5, y: 8.6 }, { x: -20.4, y: -14.4 }], origin: null },
+            '339810沉孔': { points: [{ x: 17.4, y: -25.3 }, { x: -17.4, y: -25.3 }], origin: null },
+            '339810沉孔2': { points: [{ x: 32, y: 14.2 }, { x: -28, y: -20.9 }], origin: null }
+        };
+
+        // ==== PWA功能 ====
+        // 监听安装提示
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallPrompt();
+        });
+
+        // 显示安装提示
+        function showInstallPrompt() {
+            if (deferredPrompt && !isAppInstalled()) {
+                setTimeout(() => {
+                    document.getElementById('installPrompt').style.display = 'block';
+                }, 3000);
+            }
+        }
+
+        // 安装应用
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户同意安装');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').style.display = 'none';
+                });
+            }
+        }
+
+        // 检查是否已安装
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // 隐藏安装提示
+        function hideInstallPrompt() {
+            document.getElementById('installPrompt').style.display = 'none';
+        }
+
+        // ==== 原有功能 ====
+        // 切换模板面板显示/隐藏
+        function toggleTemplatePanel() {
+            const panel = document.querySelector('.template-panel');
+            panel.classList.toggle('collapsed');
+        }
+        
+        // 加载模板
+        function loadTemplate(templateName, replaceOrigin) {
+            if (templates[templateName]) {
+                const template = templates[templateName];
+                
+                // 重置组合模式
+                isCombinationMode = false;
+                selectedTemplates = [];
+                updateSelectedTemplatesDisplay();
+                
+                // 如果是基础模板且需要更换原点
+                if (replaceOrigin && template.origin) {
+                    // 更换起点
+                    A.x = template.origin.x;
+                    A.y = template.origin.y;
+                    document.getElementById('startX').value = A.x;
+                    document.getElementById('startY').value = A.y;
+                    product = Math.abs(A.y) * 2; // 更新积数
+                    
+                    // 更换路径点
+                    points = [...template.points];
+                } else {
+                    // 只添加路径点，不更换起点
+                    points = [...template.points];
+                }
+                
+                updatePointsDisplay();
+                calculateAll();
+                
+                // 关闭模板面板
+                document.querySelector('.template-panel').classList.add('collapsed');
+            }
+        }
+        
+        // 添加模板到组合
+        function addTemplateToCombination() {
+            const templateSelect = document.getElementById('template-select');
+            const templateName = templateSelect.value;
+            
+            if (!templateName) {
+                alert("请选择一个模板");
+                return;
+            }
+            
+            // 检查是否已添加
+            if (selectedTemplates.includes(templateName)) {
+                alert("该模板已添加到组合中");
+                return;
+            }
+            
+            // 添加到组合
+            selectedTemplates.push(templateName);
+            updateSelectedTemplatesDisplay();
+            
+            // 重置选择
+            templateSelect.value = "";
+        }
+        
+        // 从组合中移除模板
+        function removeTemplateFromCombination(index) {
+            selectedTemplates.splice(index, 1);
+            updateSelectedTemplatesDisplay();
+        }
+        
+        // 更新选择的模板显示
+        function updateSelectedTemplatesDisplay() {
+            const container = document.getElementById('selected-templates');
+            
+            if (selectedTemplates.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; padding: 10px;">暂无选择的模板</div>';
+                return;
+            }
+            
+            let html = '';
+            selectedTemplates.forEach((templateName, index) => {
+                html += `
+                    <div class="selected-template-item">
+                        <span>${templateName}</span>
+                        <button onclick="removeTemplateFromCombination(${index})" class="btn-red" style="padding: 4px 8px; font-size: 0.8em;">移除</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        // 清空模板组合
+        function clearTemplateCombination() {
+            selectedTemplates = [];
+            updateSelectedTemplatesDisplay();
+        }
+        
+        // 加载多模板组合
+        function loadMultiTemplateCombination() {
+            if (selectedTemplates.length === 0) {
+                alert("请至少选择一个模板");
+                return;
+            }
+            
+            // 设置组合模式
+            isCombinationMode = true;
+            
+            // 使用第一个模板的起点
+            let combinedOrigin = { x: 0, y: -35 }; // 默认起点
+            if (templates[selectedTemplates[0]] && templates[selectedTemplates[0]].origin) {
+                combinedOrigin = { ...templates[selectedTemplates[0]].origin };
+            }
+            
+            // 设置起点
+            A.x = combinedOrigin.x;
+            A.y = combinedOrigin.y;
+            document.getElementById('startX').value = A.x;
+            document.getElementById('startY').value = A.y;
+            product = Math.abs(A.y) * 2; // 更新积数
+            
+            // 合并所有模板的路径点
+            points = [];
+            selectedTemplates.forEach(templateName => {
+                if (templates[templateName]) {
+                    points = points.concat(templates[templateName].points);
+                }
+            });
+            
+            updatePointsDisplay();
+            calculateAll();
+            
+            // 关闭模板面板
+            document.querySelector('.template-panel').classList.add('collapsed');
+        }
+        
+        // 显示更多模板
+        function showMoreTemplates() {
+            alert("更多模板功能正在开发中...\n当前版本已包含常用模板，如需更多模板请联系开发人员。");
+        }
+        
+        // 初始化画布
+        let canvas, ctx;
+        
+        function initCanvas() {
+            // 主画布
+            canvas = document.getElementById('diagram');
+            ctx = canvas.getContext('2d');
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 初始化拖拽功能
+            initDragAndDrop();
+        }
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.offsetWidth;
+            canvas.height = Math.min(400, window.innerHeight * 0.5);
+            
+            if (points.length > 0) calculateAll();
+        }
+        
+        // 初始化拖拽功能
+        function initDragAndDrop() {
+            const container = document.getElementById('points-container');
+            
+            container.addEventListener('dragstart', function(e) {
+                if (e.target.classList.contains('point-item')) {
+                    dragItem = e.target;
+                    setTimeout(() => {
+                        dragItem.classList.add('dragging');
+                    }, 0);
+                }
+            });
+            
+            container.addEventListener('dragend', function() {
+                if (dragItem) {
+                    dragItem.classList.remove('dragging');
+                    dragItem = null;
+                }
+            });
+            
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(container, e.clientY);
+                const currentItem = document.querySelector('.dragging');
+                if (currentItem && afterElement) {
+                    container.insertBefore(currentItem, afterElement);
+                }
+            });
+            
+            // 拖拽结束后更新点顺序
+            container.addEventListener('drop', function() {
+                updatePointsOrder();
+            });
+        }
+        
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.point-item:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        // 更新点顺序
+        function updatePointsOrder() {
+            const container = document.getElementById('points-container');
+            const newPoints = [];
+            container.querySelectorAll('.point-item').forEach(item => {
+                const index = parseInt(item.dataset.index);
+                newPoints.push(points[index]);
+            });
+            points = newPoints;
+            calculateAll();
+        }
+        
+        // 更新起点
+        function updateStartPoint() {
+            const startX = parseFloat(document.getElementById('startX').value);
+            const startY = parseFloat(document.getElementById('startY').value);
+            
+            if (!isNaN(startX)) A.x = startX;
+            if (!isNaN(startY)) {
+                A.y = startY;
+                product = Math.abs(A.y) * 2; // 更新积数
+            }
+            
+            calculateAll();
+        }
+        
+        // 添加新点
+        function addPoint() {
+            const x = parseFloat(document.getElementById('newX').value);
+            const y = parseFloat(document.getElementById('newY').value);
+            
+            if (isNaN(x) || isNaN(y)) {
+                alert("请输入有效坐标");
+                return;
+            }
+            
+            points.push({ x, y });
+            updatePointsDisplay();
+            calculateAll();
+            
+            // 清空输入
+            document.getElementById('newX').value = '';
+            document.getElementById('newY').value = '';
+        }
+        
+        // 更新点列表显示
+        function updatePointsDisplay() {
+            const container = document.getElementById('points-container');
+            container.innerHTML = '';
+            
+            points.forEach((point, index) => {
+                const div = document.createElement('div');
+                div.className = 'point-item';
+                div.dataset.index = index;
+                div.draggable = true;
+                
+                let pointLabel = `点 ${index + 1}`;
+                if (isCombinationMode) {
+                    // 组合模式下，计算当前点属于哪个模板
+                    let templateIndex = 0;
+                    let pointCount = 0;
+                    
+                    for (let i = 0; i < selectedTemplates.length; i++) {
+                        const templateName = selectedTemplates[i];
+                        const templatePoints = templates[templateName].points;
+                        
+                        if (index < pointCount + templatePoints.length) {
+                            templateIndex = i;
+                            break;
+                        }
+                        pointCount += templatePoints.length;
+                    }
+                    
+                    pointLabel = `点 ${templateIndex + 1}-${index - pointCount + 1}`;
+                }
+                
+                div.innerHTML = `
+                    <span>${pointLabel}:</span>
+                    <input type="number" value="${point.x}" onchange="updatePoint(${index}, 'x', this.value)" step="0.1">
+                    <input type="number" value="${point.y}" onchange="updatePoint(${index}, 'y', this.value)" step="0.1">
+                    <button onclick="removePoint(${index})" class="btn-red">删除</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        // 更新点坐标
+        function updatePoint(index, coord, value) {
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+                points[index][coord] = num;
+                calculateAll();
+            }
+        }
+        
+        // 删除点
+        function removePoint(index) {
+            points.splice(index, 1);
+            updatePointsDisplay();
+            calculateAll();
+        }
+        
+        // 清空所有点
+        function clearAll() {
+            points = [];
+            isCombinationMode = false;
+            selectedTemplates = [];
+            updateSelectedTemplatesDisplay();
+            updatePointsDisplay();
+            document.querySelector('#result-table tbody').innerHTML = '';
+            clearCanvas();
+        }
+        
+        // 清空画布
+        function clearCanvas() {
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        
+        // 切换画布可见性
+        function toggleCanvas() {
+            canvasVisible = !canvasVisible;
+            canvas.style.display = canvasVisible ? 'block' : 'none';
+            document.getElementById('toggleCanvasBtn').textContent = 
+                canvasVisible ? '隐藏图形' : '显示图形';
+            
+            if (canvasVisible) {
+                resizeCanvas();
+            }
+        }
+        
+        // 反转点顺序
+        function reversePoints() {
+            points.reverse();
+            updatePointsDisplay();
+            calculateAll();
+        }
+        
+        // 计算两点之间距离
+        function calculateDistance(point1, point2) {
+            const dx = point2.x - point1.x;
+            const dy = point2.y - point1.y;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        // 计算直径（先计算距离，然后四舍五入保留两位小数）
+        function calculateDiameter(distance) {
+            // 公式：直径 = 距离 × 2，然后四舍五入保留两位小数
+            const rawDiameter = distance * 2;
+            // 四舍五入到小数点后两位
+            const roundedDiameter = Math.round(rawDiameter * 100) / 100;
+            return roundedDiameter.toFixed(2);
+        }
+        
+        // 计算所有扇形角度和直径
+        function calculateAll() {
+            if (points.length === 0) {
+                clearCanvas();
+                return;
+            }
+            
+            const results = [];
+            let prevPoint = A;
+            
+            if (isCombinationMode) {
+                // 组合模式：分别计算每个模板的扇形
+                let pointCount = 0;
+                
+                for (let templateIndex = 0; templateIndex < selectedTemplates.length; templateIndex++) {
+                    const templateName = selectedTemplates[templateIndex];
+                    const templatePoints = templates[templateName].points;
+                    
+                    let templatePrevPoint = A;
+                    
+                    // 计算当前模板的扇形
+                    for (let i = 0; i < templatePoints.length; i++) {
+                        const point = templatePoints[i];
+                        const angle = calculateSectorAngle(O, templatePrevPoint, point);
+                        const distance = calculateDistance(O, point);
+                        const diameter = calculateDiameter(distance);
+                        
+                        results.push({
+                            name: `扇形 ${templateIndex + 1}-${i + 1}`,
+                            start: { ...templatePrevPoint },
+                            end: { ...point },
+                            distance: distance.toFixed(2),
+                            angle: angle.toFixed(2),
+                            diameter: diameter
+                        });
+                        
+                        templatePrevPoint = point;
+                    }
+                    
+                    // 当前模板的闭合扇形
+                    const finalAngle = calculateSectorAngle(O, templatePrevPoint, A);
+                    const startDistance = calculateDistance(O, A);
+                    const finalDiameter = calculateDiameter(startDistance);
+                    
+                    results.push({
+                        name: `扇形 ${templateIndex + 1}-${templatePoints.length + 1}`,
+                        start: { ...templatePrevPoint },
+                        end: { ...A },
+                        distance: startDistance.toFixed(2),
+                        angle: finalAngle.toFixed(2),
+                        diameter: finalDiameter
+                    });
+                    
+                    pointCount += templatePoints.length;
+                }
+                
+            } else {
+                // 普通模式
+                const startDistance = calculateDistance(O, A); // 圆心到起点的距离
+                
+                // 计算每个扇形区域
+                points.forEach((point, index) => {
+                    const angle = calculateSectorAngle(O, prevPoint, point);
+                    const distance = calculateDistance(O, point); // 圆心到当前点的距离
+                    const diameter = calculateDiameter(distance);
+                    
+                    results.push({
+                        name: `扇形 ${index + 1}`,
+                        start: { ...prevPoint },
+                        end: { ...point },
+                        distance: distance.toFixed(2),
+                        angle: angle.toFixed(2),
+                        diameter: diameter
+                    });
+                    
+                    prevPoint = point;
+                });
+                
+                // 闭合路径（从最后一个点回到起点）
+                const finalAngle = calculateSectorAngle(O, prevPoint, A);
+                const finalDiameter = calculateDiameter(startDistance);
+                
+                results.push({
+                    name: `扇形 ${points.length + 1}`,
+                    start: { ...prevPoint },
+                    end: { ...A },
+                    distance: startDistance.toFixed(2),
+                    angle: finalAngle.toFixed(2),
+                    diameter: finalDiameter
+                });
+            }
+            
+            updateResultsTable(results);
+            if (canvasVisible) drawDiagram(results);
+        }
+        
+        // 计算扇形角度
+        function calculateSectorAngle(O, A, B) {
+            // 向量OA
+            const oaX = A.x - O.x;
+            const oaY = A.y - O.y;
+            
+            // 向量OB
+            const obX = B.x - O.x;
+            const obY = B.y - O.y;
+            
+            // 计算点积
+            const dotProduct = oaX * obX + oaY * obY;
+            
+            // 计算模长
+            const magnitudeOA = Math.sqrt(oaX * oaX + oaY * oaY);
+            const magnitudeOB = Math.sqrt(obX * obX + obY * obY);
+            
+            // 计算夹角（弧度）
+            const cosTheta = dotProduct / (magnitudeOA * magnitudeOB);
+            const angleRad = Math.acos(Math.min(Math.max(cosTheta, -1), 1));
+            
+            // 转为角度
+            return angleRad * 180 / Math.PI;
+        }
+        
+        // 更新结果表格
+        function updateResultsTable(results) {
+            const tbody = document.querySelector('#result-table tbody');
+            tbody.innerHTML = '';
+            
+            results.forEach(result => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${result.name}</td>
+                    <td>(${result.start.x.toFixed(2)}, ${result.start.y.toFixed(2)})</td>
+                    <td>(${result.end.x.toFixed(2)}, ${result.end.y.toFixed(2)})</td>
+                    <td>${result.distance}</td>
+                    <td>${result.angle}</td>
+                    <td>${result.diameter}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // 绘制图形（无填充扇形）
+        function drawDiagram(results) {
+            clearCanvas();
+            
+            const allPoints = [O, A, ...points];
+            const { scale, offsetX, offsetY } = calculateViewport(allPoints);
+            
+            const toCanvas = (x, y) => ({
+                x: x * scale + offsetX,
+                y: canvas.height - (y * scale + offsetY)
+            });
+            
+            drawAxes(scale, offsetX, offsetY);
+            
+            // 绘制扇形区域（无填充，只有边框）
+            results.forEach((result, index) => {
+                const start = result.start;
+                const end = result.end;
+                
+                const oCanvas = toCanvas(O.x, O.y);
+                const startCanvas = toCanvas(start.x, start.y);
+                const endCanvas = toCanvas(end.x, end.y);
+                
+                // 绘制扇形边框
+                ctx.beginPath();
+                ctx.moveTo(oCanvas.x, oCanvas.y);
+                ctx.lineTo(startCanvas.x, startCanvas.y);
+                
+                // 计算半径
+                const radius = Math.sqrt((startCanvas.x-oCanvas.x)**2 + (startCanvas.y-oCanvas.y)**2);
+                
+                // 计算起始角度和结束角度
+                const startAngle = Math.atan2(startCanvas.y-oCanvas.y, startCanvas.x-oCanvas.x);
+                const endAngle = Math.atan2(endCanvas.y-oCanvas.y, endCanvas.x-oCanvas.x);
+                
+                // 绘制圆弧
+                ctx.arc(oCanvas.x, oCanvas.y, radius, startAngle, endAngle);
+                ctx.lineTo(oCanvas.x, oCanvas.y);
+                
+                // 只绘制边框，不填充
+                ctx.strokeStyle = `hsl(${index * 60 % 360}, 80%, 50%)`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 标注角度
+                const midAngle = (startAngle + endAngle) / 2;
+                const labelRadius = radius * 0.5;
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.fillText(
+                    `${result.angle}°`,
+                    oCanvas.x + Math.cos(midAngle) * labelRadius,
+                    oCanvas.y + Math.sin(midAngle) * labelRadius
+                );
+            });
+            
+            // 绘制所有点
+            function drawPoint(x, y, label, color, size = 4) {
+                const p = toCanvas(x, y);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, size, 0, Math.PI*2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '10px Arial';
+                ctx.fillText(label, p.x + 8, p.y - 8);
+            }
+            
+            drawPoint(O.x, O.y, "圆心 (0,0)", '#0f9d58', 5);
+            drawPoint(A.x, A.y, `起点 (${A.x},${A.y})`, '#ea4335', 5);
+            
+            points.forEach((point, index) => {
+                let pointLabel = `点${index+1}`;
+                if (isCombinationMode) {
+                    // 组合模式下，计算当前点属于哪个模板
+                    let templateIndex = 0;
+                    let pointCount = 0;
+                    
+                    for (let i = 0; i < selectedTemplates.length; i++) {
+                        const templateName = selectedTemplates[i];
+                        const templatePoints = templates[templateName].points;
+                        
+                        if (index < pointCount + templatePoints.length) {
+                            templateIndex = i;
+                            break;
+                        }
+                        pointCount += templatePoints.length;
+                    }
+                    
+                    pointLabel = `点${templateIndex + 1}-${index - pointCount + 1}`;
+                }
+                drawPoint(point.x, point.y, `${pointLabel} (${point.x},${point.y})`, '#4285f4', 4);
+            });
+        }
+        
+        // 绘制坐标轴
+        function drawAxes(scale, offsetX, offsetY) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            
+            const xAxisY = canvas.height - (0 * scale + offsetY);
+            ctx.moveTo(0, xAxisY);
+            ctx.lineTo(canvas.width, xAxisY);
+            
+            const yAxisX = 0 * scale + offsetX;
+            ctx.moveTo(yAxisX, 0);
+            ctx.lineTo(yAxisX, canvas.height);
+            
+            ctx.stroke();
+        }
+        
+        // 计算视图参数
+        function calculateViewport(points) {
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            
+            points.forEach(point => {
+                minX = Math.min(minX, point.x);
+                maxX = Math.max(maxX, point.x);
+                minY = Math.min(minY, point.y);
+                maxY = Math.max(maxY, point.y);
+            });
+            
+            const widthRange = Math.max(maxX - minX, 20);
+            const heightRange = Math.max(maxY - minY, 20);
+            const padding = 40;
+            
+            const scale = Math.min(
+                (canvas.width - padding * 2) / widthRange,
+                (canvas.height - padding * 2) / heightRange
+            );
+            
+            const centerX = (minX + maxX) / 2;
+            const centerY = (minY + maxY) / 2;
+            
+            const offsetX = canvas.width / 2 - centerX * scale;
+            const offsetY = canvas.height / 2 - centerY * scale;
+            
+            return { scale, offsetX, offsetY };
+        }
+        
+        // 导出功能
+        function exportAsImage() {
+            showLoading(true);
+            setTimeout(() => {
+                try {
+                    // 创建新canvas只包含表格
+                    const exportCanvas = document.createElement('canvas');
+                    const exportCtx = exportCanvas.getContext('2d');
+                    const table = document.getElementById('result-table');
+                    
+                    exportCanvas.width = Math.max(800, table.offsetWidth);
+                    exportCanvas.height = table.offsetHeight + 100;
+                    
+                    // 白色背景
+                    exportCtx.fillStyle = 'white';
+                    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                    
+                    // 添加标题
+                    exportCtx.fillStyle = 'black';
+                    exportCtx.font = 'bold 20px Arial';
+                    exportCtx.fillText('五孔计算结果', 20, 40);
+                    
+                    // 绘制表格
+                    exportCtx.font = '12px Arial';
+                    let yPos = 80;
+                    
+                    // 表头
+                    const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent);
+                    exportCtx.fillStyle = '#f2f2f2';
+                    exportCtx.fillRect(20, yPos, exportCanvas.width - 40, 30);
+                    exportCtx.fillStyle = 'black';
+                    headers.forEach((header, i) => {
+                        exportCtx.fillText(header, 25 + i * 130, yPos + 20);
+                    });
+                    yPos += 30;
+                    
+                    // 表格内容
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach((row, rowIndex) => {
+                        const cells = row.querySelectorAll('td');
+                        cells.forEach((cell, cellIndex) => {
+                            exportCtx.fillText(cell.textContent, 25 + cellIndex * 130, yPos + 20);
+                        });
+                        yPos += 30;
+                        
+                        // 交替行背景色
+                        if (rowIndex % 2 === 0) {
+                            exportCtx.fillStyle = 'rgba(0,0,0,0.05)';
+                            exportCtx.fillRect(20, yPos - 25, exportCanvas.width - 40, 30);
+                            exportCtx.fillStyle = 'black';
+                        }
+                    });
+                    
+                    // 转换为图片并下载
+                    const dataURL = exportCanvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = '五孔计算结果.png';
+                    link.href = dataURL;
+                    link.click();
+                } catch (error) {
+                    alert('导出图片失败：' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }, 100);
+        }
+        
+        function exportAsCSV() {
+            showLoading(true);
+            setTimeout(() => {
+                try {
+                    let csvContent = "扇形,起点坐标,终点坐标,圆心到点距离,角度(°),直径\n";
+                    
+                    const rows = document.querySelectorAll('#result-table tbody tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const rowData = Array.from(cells).map(cell => cell.textContent.replace(/,/g, ';'));
+                        csvContent += rowData.join(',') + '\n';
+                    });
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.download = '五孔计算结果.csv';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                } catch (error) {
+                    alert('导出CSV失败：' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }, 100);
+        }
+        
+        function exportAsHTML() {
+            showLoading(true);
+            setTimeout(() => {
+                try {
+                    const table = document.getElementById('result-table').outerHTML;
+                    
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>五孔计算结果</title>
+                            <style>
+                                body { font-family: Arial; margin: 20px; }
+                                table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                th { background-color: #f2f2f2; }
+                                h1 { color: #4285f4; }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>五孔计算结果</h1>
+                            ${table}
+                            <p>导出时间：${new Date().toLocaleString('zh-CN')}</p>
+                        </body>
+                        </html>
+                    `;
+                    
+                    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    link.download = '五孔计算结果.html';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                } catch (error) {
+                    alert('导出HTML失败：' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }, 100);
+        }
+        
+        // 显示/隐藏加载动画
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+        
+        // 初始化
+        window.onload = function() {
+            initCanvas();
+            
+            // 加载默认模板
+            loadTemplate('主轴33', true);
+            
+            // 检查是否已安装PWA
+            if (isAppInstalled()) {
+                console.log('应用已安装到桌面');
+            }
+            
+            // 5秒后检查是否显示安装提示
+            setTimeout(() => {
+                showInstallPrompt();
+            }, 5000);
+        };
+    </script>
+    
+    <!-- GitHub仓库链接 -->
+    <footer>
+        <p>
+            <a href="https://github.com/Xiaowuyu273637/Five-hole-calculator" 
+               target="_blank">
+                🌟 GitHub仓库: https://github.com/Xiaowuyu273637/Five-hole-calculator
+            </a>
+        </p>
+        <p class="footer-text">
+            五孔计算器 - 专业的五孔计算工具
+        </p>
+    </footer>
+</body>
+</html>

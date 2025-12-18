@@ -1,0 +1,33 @@
+{
+  "name": "五孔计算器",
+  "short_name": "计算器",
+  "description": "专业的五孔计算工具，支持多种模板和组合计算",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f9f9f9",
+  "theme_color": "#4285f4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/color/96/000000/calculator.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://img.icons8.com/color/144/000000/calculator.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/192/000000/calculator.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img.icons8.com/color/512/000000/calculator.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
