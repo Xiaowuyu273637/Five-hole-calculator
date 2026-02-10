@@ -7,7 +7,7 @@
     
     <style>
         :root {
-            /* 浅色主题变量 */
+            /* 浅色主题变量 - 默认 */
             --bg-color: #f9f9f9;
             --surface-color: #ffffff;
             --text-color: #333333;
@@ -23,47 +23,41 @@
             --input-bg: #ffffff;
             --table-header-bg: #f2f2f2;
             --code-bg: #f1f1f1;
-            --toggle-bg: #ffffff;
-            --toggle-shadow: rgba(0, 0, 0, 0.15);
-            /* 画布颜色变量 */
             --canvas-text-color: #333333;
             --canvas-axis-color: #ddd;
             --canvas-point-color: #4285f4;
             --canvas-center-color: #0f9d58;
             --canvas-start-color: #ea4335;
-            /* 移动端优化变量 */
             --touch-target-size: 44px;
         }
 
-        [data-theme="dark"] {
-            /* 深色主题变量 */
-            --bg-color: #1a1a1a;
-            --surface-color: #2d2d2d;
-            --text-color: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --primary-color: #5c9dff;
-            --primary-light: #2a3b57;
-            --secondary-color: #34a853;
-            --danger-color: #ea4335;
-            --warning-color: #ff9800;
-            --accent-color: #bb86fc;
-            --border-color: #444;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --input-bg: #3d3d3d;
-            --table-header-bg: #3a3a3a;
-            --code-bg: #2a2a2a;
-            --toggle-bg: #1a1a1a;
-            --toggle-shadow: rgba(0, 0, 0, 0.5);
-            /* 画布颜色变量 - 深色主题 */
-            --canvas-text-color: #e0e0e0;
-            --canvas-axis-color: #666; /* 修改：加深色主题轴线颜色，使其可见 */
-            --canvas-point-color: #5c9dff;
-            --canvas-center-color: #34a853;
-            --canvas-start-color: #ea4335;
+        /* 深色主题变量 - 根据系统设置自动应用 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --surface-color: #1e1e1e;
+                --text-color: #e0e0e0;
+                --text-secondary: #a0a0a0;
+                --primary-color: #64b5f6;
+                --primary-light: #0d3a6b;
+                --secondary-color: #4caf50;
+                --danger-color: #f44336;
+                --warning-color: #ffb74d;
+                --accent-color: #ce93d8;
+                --border-color: #444;
+                --shadow-color: rgba(0, 0, 0, 0.3);
+                --input-bg: #2d2d2d;
+                --table-header-bg: #2a2a2a;
+                --code-bg: #2a2a2a;
+                --canvas-text-color: #e0e0e0;
+                --canvas-axis-color: #555;
+                --canvas-point-color: #64b5f6;
+                --canvas-center-color: #4caf50;
+                --canvas-start-color: #f44336;
+            }
         }
 
         * {
-            transition: background-color 0.3s ease, border-color 0.3s ease;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -74,24 +68,26 @@
             padding: 15px;
             box-sizing: border-box;
             position: relative;
-            background: var(--bg-color);
+            background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
             -webkit-text-size-adjust: 100%;
             -moz-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
             text-size-adjust: 100%;
-            /* 修复：允许页面滚动 */
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        
+
         .calculator {
             background: var(--surface-color);
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px var(--shadow-color);
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
         
         h2 {
@@ -106,6 +102,7 @@
             border-radius: 4px;
             margin-bottom: 15px;
             border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
         }
         
         .input-group {
@@ -122,14 +119,21 @@
         
         input {
             width: 100%;
-            padding: 12px; /* 增大padding便于触摸 */
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             box-sizing: border-box;
-            font-size: 16px; /* 防止iOS缩放 */
+            font-size: 16px;
             background: var(--input-bg);
             color: var(--text-color);
             min-height: var(--touch-target-size);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
         }
         
         button {
@@ -143,8 +147,8 @@
             width: 100%;
             font-size: 0.9em;
             min-height: var(--touch-target-size);
-            transition: opacity 0.3s ease, transform 0.1s ease;
             touch-action: manipulation;
+            transition: all 0.3s ease;
         }
         
         button:active {
@@ -181,7 +185,6 @@
         
         #points-container {
             margin: 10px 0;
-            /* 修复：允许容器内部正常滚动 */
             max-height: 300px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -197,21 +200,8 @@
             background: var(--primary-light);
             border-radius: 4px;
             border: 1px solid var(--border-color);
-            /* 修复：允许正常触摸交互 */
             user-select: none;
-        }
-        
-        .point-item.dragging {
-            opacity: 0.5;
-            background: var(--code-bg);
-            position: relative;
-            z-index: 1000;
-        }
-        
-        /* 修复：深色模式下点项目样式 */
-        [data-theme="dark"] .point-item {
-            background: #2a3b57;
-            border-color: #444;
+            transition: all 0.3s ease;
         }
         
         .point-item input {
@@ -245,6 +235,7 @@
             margin-top: 15px;
             font-size: 0.85em;
             border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
         
         th, td {
@@ -252,6 +243,7 @@
             padding: 8px;
             text-align: left;
             word-break: break-word;
+            transition: all 0.3s ease;
         }
         
         th {
@@ -267,7 +259,6 @@
             max-height: 400px;
             display: block;
             background: var(--surface-color);
-            /* 修复：画布触摸行为 */
             touch-action: none;
         }
         
@@ -277,6 +268,7 @@
             background: var(--primary-light);
             border-radius: 4px;
             border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
         
         .program-display h3 {
@@ -302,6 +294,7 @@
             overflow-y: auto;
             margin-bottom: 15px;
             color: var(--text-color);
+            transition: all 0.3s ease;
         }
         
         .format-toggle {
@@ -318,6 +311,7 @@
             border: 2px solid var(--border-color);
             font-size: 0.85em;
             min-height: var(--touch-target-size);
+            transition: all 0.3s ease;
         }
         
         .format-btn.active {
@@ -340,6 +334,7 @@
             margin-bottom: 15px;
             border-left: 4px solid var(--primary-color);
             font-size: 0.9em;
+            transition: all 0.3s ease;
         }
         
         .formula-info h4 {
@@ -371,9 +366,6 @@
         .toggle-btn {
             flex: 1;
             min-height: var(--touch-target-size);
-            /* 修复：确保按钮可点击 */
-            pointer-events: auto;
-            z-index: 1;
         }
         
         .template-panel {
@@ -591,7 +583,7 @@
         
         .video-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 比例 */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
             border-radius: 4px;
@@ -605,40 +597,6 @@
             width: 100%;
             height: 100%;
             border: none;
-        }
-        
-        .video-info {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 10px;
-            padding: 10px;
-            background: var(--primary-light);
-            border-radius: 4px;
-        }
-        
-        .bilibili-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .bilibili-link:hover {
-            opacity: 0.9;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .bilibili-icon {
-            font-size: 1.2em;
         }
         
         .loading {
@@ -687,18 +645,11 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            transition: color 0.3s ease;
         }
         
         footer a:hover {
             color: var(--accent-color);
             text-decoration: underline;
-        }
-        
-        footer .footer-text {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-            margin-top: 5px;
         }
         
         .incremental-calculator {
@@ -797,9 +748,6 @@
             font-size: 0.9em;
             transition: all 0.3s ease;
             min-height: var(--touch-target-size);
-            /* 修复：确保按钮可点击 */
-            pointer-events: auto;
-            z-index: 1;
         }
         
         .tab-btn.active {
@@ -893,7 +841,6 @@
         
         .adjustment-input input:focus {
             border-color: var(--secondary-color);
-            box-shadow: 0 0 5px rgba(15, 157, 88, 0.3);
         }
         
         .adjustment-input .unit {
@@ -902,18 +849,17 @@
             min-width: 30px;
         }
         
-        /* 修改.calculated-result的样式 - 使用固定字体颜色 */
         .calculated-result {
             margin-top: 10px;
             padding: 10px;
             background: var(--primary-light);
             border-radius: 4px;
             border: 1px solid var(--border-color);
-            color: var(--text-color); /* 改为使用主题变量 */
+            color: var(--text-color);
         }
 
         .calculated-result strong {
-            color: var(--secondary-color); /* 改为使用主题变量 */
+            color: var(--secondary-color);
         }
         
         .auto-calc-btn {
@@ -921,7 +867,6 @@
             width: 100%;
         }
         
-        /* 修改.adjustment-explanation的样式 - 使用固定字体颜色 */
         .adjustment-explanation {
             background: var(--primary-light);
             padding: 12px;
@@ -933,13 +878,13 @@
 
         .adjustment-explanation h4 {
             margin: 0 0 8px 0;
-            color: var(--text-color); /* 使用主题变量 */
+            color: var(--text-color);
             font-size: 1em;
         }
 
         .adjustment-explanation p {
             margin: 5px 0;
-            color: var(--text-secondary); /* 使用主题变量 */
+            color: var(--text-secondary);
         }
         
         .standard-value-highlight {
@@ -982,7 +927,6 @@
             color: var(--secondary-color);
         }
         
-        /* 新增样式 */
         .template-search {
             margin-bottom: 15px;
             position: relative;
@@ -1064,7 +1008,6 @@
             display: none;
         }
         
-        /* 模板库点击外部关闭的遮罩层 */
         .template-overlay {
             display: none;
             position: fixed;
@@ -1080,85 +1023,6 @@
             display: block;
         }
         
-        /* 悬浮球样式 */
-        .theme-toggle {
-            position: fixed;
-            cursor: grab;
-            z-index: 10000;
-            border: none;
-            background: transparent;
-            padding: 0;
-            outline: none;
-            user-select: none;
-            touch-action: none;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: transform, left, top;
-            width: 60px;
-            height: 60px;
-        }
-
-        .toggle-ball {
-            width: 100%;
-            height: 100%;
-            background: var(--toggle-bg);
-            border-radius: 50%;
-            position: relative;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 8px 32px var(--toggle-shadow),
-                0 4px 16px rgba(0, 0, 0, 0.2),
-                inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                inset 0 -4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 边缘隐藏效果 */
-        .theme-toggle.hidden {
-            transform: translateX(0%);
-        }
-
-        .theme-toggle.hidden-right {
-            right: 0;
-            transform: translateX(70%);
-        }
-
-        .theme-toggle.hidden-left {
-            left: 0;
-            transform: translateX(-70%);
-        }
-
-        /* 拖拽状态 */
-        .theme-toggle.dragging {
-            cursor: grabbing;
-            transition: none;
-        }
-
-        .theme-toggle.dragging .toggle-ball {
-            opacity: 0.8;
-        }
-
-        /* 点击效果 */
-        .theme-toggle:active:not(.dragging) .toggle-ball {
-            transform: scale(0.85);
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* 波纹效果 */
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: var(--text-secondary);
-            opacity: 0.2;
-            transform: scale(0);
-            animation: rippleEffect 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: -1;
-        }
-
-        @keyframes rippleEffect {
-            0% { transform: scale(0); opacity: 0.6; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-        
-        /* 开发者信息 */
         .developer-info {
             text-align: center;
             padding: 10px;
@@ -1168,16 +1032,7 @@
             border-top: 1px solid var(--border-color);
         }
         
-        .developer-info a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-        
-        .developer-info a:hover {
-            text-decoration: underline;
-        }
-        
-        /* 移动端优化 */
+        /* 移动端提示样式 */
         .touch-hint {
             position: fixed;
             bottom: 20px;
@@ -1189,9 +1044,20 @@
             padding: 10px;
             background: rgba(0,0,0,0.1);
             display: none;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
         }
         
-        /* 虚拟键盘触发时调整布局 */
+        .touch-hint.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        .touch-hint.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
         @media (max-height: 500px) {
             .program-content {
                 max-height: 200px;
@@ -1202,7 +1068,7 @@
             }
             
             .video-container {
-                padding-bottom: 75%; /* 4:3 比例以适应更小的高度 */
+                padding-bottom: 75%;
             }
         }
         
@@ -1224,11 +1090,6 @@
                 grid-template-columns: 1fr;
             }
             
-            .theme-toggle {
-                width: 50px;
-                height: 50px;
-            }
-            
             .toggle-container {
                 flex-direction: column;
             }
@@ -1245,30 +1106,8 @@
                 width: 100%;
             }
             
-            .touch-hint {
-                display: block;
-            }
-            
-            /* 防止iOS输入框缩放 */
             input, select, textarea {
                 font-size: 16px;
-            }
-            
-            /* 改善移动端滚动 */
-            body {
-                -webkit-overflow-scrolling: touch;
-                overflow-x: hidden;
-            }
-            
-            /* 修复移动端按钮点击 */
-            button {
-                touch-action: manipulation;
-            }
-            
-            .video-modal .modal-content {
-                width: 95%;
-                max-width: 95%;
-                margin: 10px;
             }
         }
         
@@ -1308,45 +1147,28 @@
                 font-size: 0.7em;
             }
             
-            .theme-toggle {
-                width: 45px;
-                height: 45px;
-            }
-            
             .standard-values {
                 grid-template-columns: 1fr;
             }
             
-            /* 移动端按钮点击效果 */
             button:active {
                 transform: scale(0.95);
-            }
-            
-            .video-container {
-                padding-bottom: 75%; /* 移动端使用更高的比例 */
             }
         }
     </style>
 </head>
 <body>
-    <!-- 悬浮球 -->
-    <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-        <div class="toggle-ball" id="toggleBall"></div>
-    </button>
-    
-    <!-- 移动端提示 -->
+    <!-- 移动端提示 - 1分钟后自动消失 -->
     <div class="touch-hint" id="touchHint">
-        💡 提示：长按悬浮球可拖动位置，点击切换主题
+        💡 提示：点击模板库按钮加载预设模板
     </div>
     
     <div class="loading" id="loading">
         <div class="spinner"></div>
     </div>
     
-    <!-- 模板库遮罩层 -->
     <div class="template-overlay" id="templateOverlay" onclick="closeTemplatePanel()"></div>
     
-    <!-- 程序名称输入模态框 -->
     <div class="modal" id="programNameModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1362,7 +1184,6 @@
         </div>
     </div>
     
-    <!-- 模板库面板 -->
     <div class="template-panel" id="templatePanel">
         <div class="template-header" onclick="toggleTemplatePanel()">
             <h3>模板库</h3>
@@ -1430,13 +1251,11 @@
         </div>
     </div>
     
-    <!-- 标签页切换 -->
     <div class="tab-container">
         <button id="tab1" class="tab-btn active" onclick="switchTab(1)">五孔计算器</button>
         <button id="tab2" class="tab-btn" onclick="switchTab(2)">递增计算器</button>
     </div>
     
-    <!-- 五孔计算器标签页 -->
     <div id="calculator-tab" class="calculator tab-content active">
         <h2>五孔计算器</h2>
         
@@ -1467,6 +1286,21 @@
                 <input type="number" id="newY" placeholder="Y坐标" step="0.1" inputmode="decimal">
                 <button onclick="addPoint()">添加点</button>
                 <button onclick="clearAll()" class="btn-red">清空所有点</button>
+            </div>
+            
+            <div class="input-group">
+                <label>添加附加点：</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 0.9em; color: var(--text-color);">新点序：</span>
+                    <input type="number" id="additionalPointIndex" placeholder="输入新点序" min="1" step="1" value="2" style="flex: 0 0 80px;">
+                    <span style="font-size: 0.9em; color: var(--text-secondary);">（例如：输入6 → 创建6-1点）</span>
+                </div>
+                <input type="number" id="newAdditionalX" placeholder="X坐标" step="0.1" inputmode="decimal">
+                <input type="number" id="newAdditionalY" placeholder="Y坐标" step="0.1" inputmode="decimal">
+                <button onclick="addAdditionalPoint()" class="btn-orange">添加附加点</button>
+                <div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 5px;">
+                    提示：修改点序不会影响已有的附加点，只会创建新的点序组
+                </div>
             </div>
         </div>
         
@@ -1503,6 +1337,8 @@
             <div class="formula-info">
                 <h4>计算公式说明：</h4>
                 <p>1. <strong>X值计算</strong>：<code>X = 距离(O→点) × 2</code></p>
+                <p style="margin-left: 15px;">• 当起点Y为负数时，X值为正数</p>
+                <p style="margin-left: 15px;">• 当起点Y为正数时，X值为负数</p>
                 <p>2. <strong>C值计算</strong>：累积角度（从0°开始累加每个扇形角度）</p>
                 <p style="margin-left: 15px;">• 附加模板中，如果两点过近，角度会用负数反向递增</p>
                 <p style="margin-left: 15px;">• 多模板组合时，点编号会从模板编号重新递增</p>
@@ -1521,7 +1357,6 @@
         </div>
     </div>
     
-    <!-- 递增计算器标签页 -->
     <div id="incremental-tab" class="incremental-calculator tab-content">
         <h2>递增计算器</h2>
         
@@ -1662,7 +1497,7 @@
                 <strong>🚀 共同开发</strong>
             </p>
             <p class="footer-text">
-                五孔计算器 - 递增计算版 - 专业的五孔计算工具 | v2.2 视频教程版
+                五孔计算器 - 递增计算版 - 专业的五孔计算工具 | v2.3
             </p>
             <p style="margin-top: 10px;">
                 <a href="https://www.bilibili.com/video/BV1PoBQBSEaX/" target="_blank">
@@ -1677,8 +1512,9 @@
         const O = { x: 0, y: 0 };
         let A = { x: 0, y: -35 };
         let points = [];
+        let additionalPoints = [];
+        let currentAdditionalPointIndex = 2;
         let canvasVisible = true;
-        let dragItem = null;
         let product = Math.abs(A.y) * 2;
         let isCombinationMode = false;
         let selectedTemplates = [];
@@ -1687,7 +1523,6 @@
         
         let calculatedResults = [];
         let templatePointGroups = [];
-        let originalProgramLines = [];
         
         let xAdjustment = 0;
         let cAdjustment = 0;
@@ -1708,450 +1543,169 @@
         // 存储搜索关键词
         let searchKeywords = {};
         
-        // GitHub 模板文件URL
-        const GITHUB_TEMPLATE_URL = 'https://raw.githubusercontent.com/Xiaowuyu273637/Five-hole-calculator/main/%E6%A8%A1%E7%89%88%E7%82%B9%E4%BD%8D.txt';
+        // 优化GitHub国内连接
+        const GITHUB_URLS = [
+            'https://raw.githubusercontent.com/Xiaowuyu273637/Five-hole-calculator/main/%E6%A8%A1%E7%89%88%E7%82%B9%E4%BD%8D.txt',
+            'https://cdn.jsdelivr.net/gh/Xiaowuyu273637/Five-hole-calculator@main/%E6%A8%A1%E7%89%88%E7%82%B9%E4%BD%8D.txt',
+            'https://raw.githubusercontent.com/Xiaowuyu273637/Five-hole-calculator/master/%E6%A8%A1%E7%89%88%E7%82%B9%E4%BD%8D.txt'
+        ];
         
-        // B站视频教程URL
-        const BILIBILI_VIDEO_URL = 'https://www.bilibili.com/video/BV1PoBQBSEaX/';
-        
+        // 备用模板内容（内置）
+        const FALLBACK_TEMPLATE_CONTENT = `主轴24模版原点：X0,Y-25.5，示例点：24,-8.7 16.6,19.3 4,19.3 -18.3,17.8 -24,-8.7 -24,-8.7
+120410定位孔：-35,0
+
+下轴24模版原点：X0,Y-25.5，示例点：24,-8.7 18.7,17.8 -16.6,19.3 -24,-8.7
+110010标记孔：23.8,1.5
+
+主轴26.3模版原点：X0,Y-28.0，示例点：26.3,-9.6 18,21.4 -20.1,19.4 -26.3,-9.6
+115010排气孔：15.3,-21.2 -18.6,-18.7
+115010定位孔：-37,0
+226110定位孔：20.6,-19 3.8,19.5 -28,1.3
+228110排气孔：15.3,-21.2 -18.6,-18.7
+222810排气孔：15.3,-21.2 -18.6,-18.7
+229410排气孔：15.3,-21.2 -18.6,-18.7
+229410定位孔：0,-38
+235210定位孔：0,-38
+241110定位孔：0,-38
+美的11105815定位孔：-37,0
+115811定位孔：-37,0
+243810定位孔：0,-38
+
+下轴26.3模版原点：X0,Y-28.0，示例点：26.3,-9.6 20.1,19.4 -4,18.6 -18,21.4 -26.3,9.6
+111810排气孔：18.6,-18.7 -15.3,-21.2 
+111810沉孔：23.5,8.6 -20.4,-14.4
+226110定位孔：20.6,-19 3.8,19.5 -28,1.3
+224510排气孔：18.6,-18.7 -15.3,-21.3
+224510排气孔粗铣：-3.6,18.7
+241010标记点：-23.8,1.5
+241910标记点：-23.8,1.5
+141310排气孔：15.3,-21.2 -18.6,-18.7
+141310定位孔：-37,0
+141310标记孔：-22,5
+
+主轴27.7模版原点：X0,Y-29.5，示例点：27.7,-10.2 19,22.6 3.8,21 -21.5,20.2 -27.7,-10.2
+223710排气孔：16.5,-23.5 -16.5,-23.5
+223710定位孔：0,-38
+224610排气孔：16.5,-23.5 -16.5,-23.5
+224610定位孔：0,-38
+227210排气孔：16.5,-23.5 -16.5,-23.5
+227210定位孔：0,-38
+233310排气孔：16.5,-23.5 -16.5,-23.5
+233310定位孔：0,-38
+224610排气孔：16.5,-23 -20,-20
+224610定位孔：0,-38
+242010排气孔：16.5,-23.5 -16.5,-23.5
+242010定位孔：0,-38
+230210排气孔：16.5,-23 -20,-20
+230210定位孔：0,-38
+243110排气孔：15,-24.5 -15,-24.5
+243110定位孔：0,-38
+231910定位孔：0,-38
+227811定位孔：0,-38
+240911排气孔：13.2,-25.8 -20.5,-20.5
+240911排气孔：13.2,-25.8 -29,0 -20.5,-20.5
+英维克L6151510排气孔：16.5,-23.5 -16.5,-23.5
+英维克L6151510定位孔：0,-38
+
+下轴27.7模版原点：X0,Y-29.5，示例点：27.7,-10.2 21.5,20.2 -3.8,21 -19,22.6 -27.7,-10.2
+英维克L6160510排气孔：16.5,-23.5 -16.5,-23.5
+英维克L6160110标记点：-26,2
+241310排气孔：15,-24.5 -15,-24.5
+242210排气孔：16.5,-23 -16.5,-23
+244910排气孔：16.5,-23 -16.5,-23
+244910定位孔：0,-38
+
+主轴28.7模版原点：X0,Y-30.5 示例点：28.7,-10.4 19.6,23.4 4.6,22.8 -21.9,21.2 -28.7,-10.4
+360110定位孔：17,-24.9 -35.5,-24.7
+360410定位孔：17,-24.9 -35.5,-24.7
+320210排气孔：16,-25.4 -35.5,-24.7 -16.1,25.4
+320210定位孔：-35.5,-24.7
+356720定位孔：-35.5,-24.7
+356720排气孔：16.1,-25.4 -16.1,-25.4
+354810定位孔：14.5,-43.6 39,22.5 -39,22.5
+357010定位孔：-35.5,-24.7
+357010排气孔：16.1,-25.4 -16.1,-25.4
+357710定位孔：-35.5,-24.7
+357710排气孔：16.1,-25.4 -16.1,-25.4
+300210定位孔：-35.5,-24.7
+300210排气孔：16.1,-25.4 -16.1,-25.4
+
+下轴28.7模版原点：X0,Y-30.5，示例点：28.7,-10.4 21.2,21.9 -4.6,22.8 -19.6,23.4 -28.7,-10.4
+352910排气孔：16.1,-25.4 -16.1,-25.4
+353610排气孔：16.1,-25.4 -16.1,-25.4
+
+主轴33模版原点：X0,Y-35.0，示例点：33,-11 22,27 4.8,22.9 -24.4,25.1 -33,-11
+390611定位孔：-38,-25.5
+392310排气孔：18.3,-26.7 -18.7,-26.7
+392310沉孔：-2.5,-47.4 42.3,21.6 -39.8,25.9
+522010排气孔：20.3,-27.9 -33.4,8.3 -20.3,-27.9
+
+下轴33模版原点：X0,Y-35.0，示例点：33,-11 24,25.3 -4.6,25.9 -22,27 -33,-11
+521610排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
+522310排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
+522510排气孔：20.3,-27.9 -20.3,-27.9
+522510沉孔：32,11.5 -27.8,-19.5
+516820排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
+521710排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
+
+主轴37.2模版原点：X0,Y-39.0，示例点：37.2,-11.9 24.4,30.4 4.8,26.3 -27.6,27.6 -37.2,-11.9
+632710排气孔：22.5,-30.6 -22.5,-30.6
+632710定位孔：4.8,26.3 -33,-43
+631210排气孔：22.5,-30.6 -35.5,13.5 -22.5,-30.6
+631210定位孔：4.8,26.3 -33,-43
+
+主轴38.1模版原点：X0,Y-40，示例点：38.1,-12.2 25.1,31.2 5.4,28 -28.3,28.3 -22.5,-30.6
+712810排气孔：11.5,-36.2 22.5,-30.6 -38,6.5 -22.5,-30.6
+712810定位孔：-12,-34 -33.3,-47.5
+
+特别版28.7模版原点：X0,Y-30.5，示例点：16.1,-25.4 28.7,-10.4 21.2,21.9 -4.6,22.8 -19.6,23.4 -28.7,-10.4 -16.1,-25.4
+338910沉孔：28,12.4 -24.5,-18.3
+339110沉孔：28,12.4 -24.5,-18.3
+392010定位孔：-35.5,-24.7
+300210沉孔：28,12.4 -24.5,-18.3
+
+特别版33模版原点：X0,Y-35.0，示例点：19,-27.7 33,-11 22,27 4.6,24.5 -24.4,25.1 -33,-11 -19,-27.7
+392510定位孔：14,44.5 -35.5,-24.7
+
+下轴特别版33模版原点：X0,Y-35.0，示例点：19,-27.7 33,-11 24.4,25.1 -4.6,24.5 -22,27 -33,-11 -19,-27.7
+300410沉孔：17.4,-25.3 -17.4,-25.3
+300410沉孔2：32,14.2 -28,-20.9
+338010沉孔：32,14.2 -28,-20.9
+339810沉孔：17.4,-25.3 -17.4,-25.3
+339810沉孔2：32,14.2 -28,-20.9`;
+
         // 移动端检测
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        // ========== 提示功能 ==========
+        function showTouchHint() {
+            if (isMobile) {
+                const hint = document.getElementById('touchHint');
+                if (hint) {
+                    // 显示提示
+                    hint.classList.remove('hide');
+                    hint.classList.add('show');
+                    
+                    // 1分钟后淡出消失
+                    setTimeout(() => {
+                        hint.classList.remove('show');
+                        hint.classList.add('hide');
+                        
+                        // 完全隐藏
+                        setTimeout(() => {
+                            hint.style.display = 'none';
+                        }, 500); // 等待淡出动画完成
+                    }, 60000); // 1分钟 = 60000毫秒
+                }
+            }
+        }
         
         // ========== 视频教程功能 ==========
         function openVideoTutorial() {
             window.open('https://www.bilibili.com/video/BV1PoBQBSEaX/?vd_source=6af4db5cdbf72b2d4ced3337fdf5d7f6', '_blank');
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
-            }
-        }
-        
-        // 移动端优化
-        // 防止双击缩放
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function(event) {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) {
-                event.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-        
-        // ========== 悬浮球类（移动端优化版）==========
-        class EdgeHideToggle {
-            constructor(options = {}) {
-                this.options = {
-                    ballSize: isMobile ? 50 : 60,
-                    hideThreshold: 30,
-                    hideDelay: 2000,
-                    longPressDelay: 300,
-                    clickMaxMove: isMobile ? 10 : 5, // 移动端增加容差
-                    deceleration: 0.95,
-                    minVelocity: 0.5,
-                    enableInertia: true,
-                    enableEdgeHide: true,
-                    enableVibrate: isMobile, // 移动端启用震动反馈
-                    ...options
-                };
-
-                this.toggleBtn = document.getElementById('themeToggle');
-                this.toggleBall = document.getElementById('toggleBall');
-                this.body = document.body;
-                this.touchHint = document.getElementById('touchHint');
-                
-                this.isDragging = false;
-                this.isLongPress = false;
-                this.startTime = 0;
-                this.startX = 0;
-                this.startY = 0;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.animationId = null;
-                this.hideTimer = null;
-                
-                this.minX = 0;
-                this.minY = 0;
-                this.maxX = 0;
-                this.maxY = 0;
-                
-                this.init();
-            }
-
-            init() {
-                this.toggleBall.style.width = `${this.options.ballSize}px`;
-                this.toggleBall.style.height = `${this.options.ballSize}px`;
-                
-                this.updateBoundaries();
-                const savedPos = localStorage.getItem('togglePosition');
-                if (savedPos) {
-                    const { x, y } = JSON.parse(savedPos);
-                    this.setPosition(x, y);
-                } else {
-                    // 移动端默认位置：右下角
-                    this.setPosition(this.maxX - 10, this.maxY - 10);
-                }
-                
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                this.setTheme(savedTheme, false);
-                
-                this.bindEvents();
-                window.addEventListener('resize', () => this.updateBoundaries());
-                this.startHideCheck();
-            }
-
-            bindEvents() {
-                // 鼠标事件（桌面端）
-                this.toggleBtn.addEventListener('mousedown', (e) => this.handleStart(e));
-                document.addEventListener('mousemove', (e) => this.handleMove(e));
-                document.addEventListener('mouseup', (e) => this.handleEnd(e));
-
-                // 触摸事件（移动端）
-                this.toggleBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    this.handleStart(e.touches[0]);
-                });
-                
-                document.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    if (e.touches.length === 1) this.handleMove(e.touches[0]);
-                });
-                
-                document.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    if (e.changedTouches.length > 0) this.handleEnd(e.changedTouches[0]);
-                });
-
-                // 防止选择文本和右键菜单
-                this.toggleBtn.addEventListener('selectstart', (e) => e.preventDefault());
-                this.toggleBtn.addEventListener('contextmenu', (e) => e.preventDefault());
-            }
-
-            handleStart(e) {
-                this.startTime = Date.now();
-                this.isLongPress = false;
-                this.isDragging = false;
-                this.stopHide();
-                this.show();
-                
-                // 隐藏提示
-                if (this.touchHint) this.touchHint.style.display = 'none';
-                
-                this.startX = e.clientX || e.pageX;
-                this.startY = e.clientY || e.pageY;
-                this.lastX = e.clientX || e.pageX;
-                this.lastY = e.clientY || e.pageY;
-                this.lastTime = Date.now();
-                
-                const rect = this.toggleBtn.getBoundingClientRect();
-                this.initialX = rect.left;
-                this.initialY = rect.top;
-                
-                this.longPressTimer = setTimeout(() => {
-                    this.isLongPress = true;
-                    this.startDrag();
-                    // 移动端震动反馈
-                    if (this.options.enableVibrate && navigator.vibrate) {
-                        navigator.vibrate(50);
-                    }
-                }, this.options.longPressDelay);
-            }
-
-            handleMove(e) {
-                if (!this.startX || !this.startY) return;
-                
-                const currentTime = Date.now();
-                const deltaTime = currentTime - this.lastTime;
-                
-                const clientX = e.clientX || e.pageX;
-                const clientY = e.clientY || e.pageY;
-                
-                if (deltaTime > 0) {
-                    const deltaX = clientX - this.lastX;
-                    const deltaY = clientY - this.lastY;
-                    
-                    this.velocityX = deltaX / deltaTime * 1000;
-                    this.velocityY = deltaY / deltaTime * 1000;
-                    
-                    this.lastX = clientX;
-                    this.lastY = clientY;
-                    this.lastTime = currentTime;
-                }
-                
-                if (!this.isDragging) {
-                    const movedDistance = Math.sqrt(
-                        Math.pow(clientX - this.startX, 2) + 
-                        Math.pow(clientY - this.startY, 2)
-                    );
-                    
-                    if (movedDistance > this.options.clickMaxMove) {
-                        clearTimeout(this.longPressTimer);
-                        this.startDrag();
-                    }
-                }
-                
-                if (this.isDragging) {
-                    this.drag(e);
-                }
-            }
-
-            handleEnd(e) {
-                clearTimeout(this.longPressTimer);
-                
-                const endTime = Date.now();
-                const pressDuration = endTime - this.startTime;
-                const clientX = e.clientX || e.pageX;
-                const clientY = e.clientY || e.pageY;
-                const movedDistance = Math.sqrt(
-                    Math.pow(clientX - this.startX, 2) + 
-                    Math.pow(clientY - this.startY, 2)
-                );
-                
-                if (this.isDragging) {
-                    if (this.options.enableInertia) {
-                        this.startInertia();
-                    }
-                    this.savePosition();
-                    // 移动端震动反馈
-                    if (this.options.enableVibrate && navigator.vibrate) {
-                        navigator.vibrate(30);
-                    }
-                } else if (pressDuration < this.options.longPressDelay && 
-                          movedDistance < this.options.clickMaxMove) {
-                    this.toggleTheme();
-                    // 移动端震动反馈
-                    if (this.options.enableVibrate && navigator.vibrate) {
-                        navigator.vibrate(100);
-                    }
-                }
-                
-                this.resetDragState();
-                this.startHideCheck();
-            }
-
-            startDrag() {
-                this.isDragging = true;
-                this.toggleBtn.classList.add('dragging');
-                this.updateBoundaries();
-            }
-
-            drag(e) {
-                const clientX = e.clientX || e.pageX;
-                const clientY = e.clientY || e.pageY;
-                const dx = clientX - this.startX;
-                const dy = clientY - this.startY;
-                
-                let newX = this.initialX + dx;
-                let newY = this.initialY + dy;
-                
-                newX = Math.max(this.minX, Math.min(newX, this.maxX));
-                newY = Math.max(this.minY, Math.min(newY, this.maxY));
-                
-                this.setPosition(newX, newY);
-            }
-
-            startInertia() {
-                if (Math.abs(this.velocityX) < 1 && Math.abs(this.velocityY) < 1) {
-                    this.stopDrag();
-                    return;
-                }
-                
-                this.applyInertia();
-            }
-
-            applyInertia() {
-                if (!this.isDragging && (Math.abs(this.velocityX) > this.options.minVelocity || 
-                                         Math.abs(this.velocityY) > this.options.minVelocity)) {
-                    
-                    const rect = this.toggleBtn.getBoundingClientRect();
-                    let newX = rect.left + this.velocityX * 0.016;
-                    let newY = rect.top + this.velocityY * 0.016;
-                    
-                    if (newX < this.minX || newX > this.maxX) {
-                        this.velocityX *= -0.6;
-                        newX = newX < this.minX ? this.minX : this.maxX;
-                    }
-                    
-                    if (newY < this.minY || newY > this.maxY) {
-                        this.velocityY *= -0.6;
-                        newY = newY < this.minY ? this.minY : this.maxY;
-                    }
-                    
-                    this.setPosition(newX, newY);
-                    
-                    this.velocityX *= this.options.deceleration;
-                    this.velocityY *= this.options.deceleration;
-                    
-                    this.animationId = requestAnimationFrame(() => this.applyInertia());
-                } else {
-                    this.stopDrag();
-                }
-            }
-
-            stopDrag() {
-                this.isDragging = false;
-                this.toggleBtn.classList.remove('dragging');
-                
-                if (this.animationId) {
-                    cancelAnimationFrame(this.animationId);
-                    this.animationId = null;
-                }
-            }
-
-            resetDragState() {
-                this.startX = 0;
-                this.startY = 0;
-                this.initialX = 0;
-                this.initialY = 0;
-                this.velocityX = 0;
-                this.velocityY = 0;
-            }
-
-            startHideCheck() {
-                if (!this.options.enableEdgeHide) return;
-                
-                clearTimeout(this.hideTimer);
-                this.hideTimer = setTimeout(() => {
-                    this.checkEdgeHide();
-                }, this.options.hideDelay);
-            }
-
-            stopHide() {
-                clearTimeout(this.hideTimer);
-            }
-
-            checkEdgeHide() {
-                const rect = this.toggleBtn.getBoundingClientRect();
-                const screenWidth = window.innerWidth;
-                const screenHeight = window.innerHeight;
-                
-                this.toggleBtn.classList.remove('hidden', 'hidden-left', 'hidden-right');
-                
-                const isNearLeft = rect.left < this.options.hideThreshold;
-                const isNearRight = rect.left > screenWidth - rect.width - this.options.hideThreshold;
-                const isNearTop = rect.top < this.options.hideThreshold;
-                const isNearBottom = rect.top > screenHeight - rect.height - this.options.hideThreshold;
-                
-                if (isNearLeft) {
-                    this.toggleBtn.classList.add('hidden', 'hidden-left');
-                } else if (isNearRight) {
-                    this.toggleBtn.classList.add('hidden', 'hidden-right');
-                } else if (isNearTop || isNearBottom) {
-                    this.toggleBtn.classList.add('hidden');
-                }
-            }
-
-            show() {
-                this.toggleBtn.classList.remove('hidden', 'hidden-left', 'hidden-right');
-            }
-
-            setPosition(x, y) {
-                this.toggleBtn.style.left = `${x}px`;
-                this.toggleBtn.style.top = `${y}px`;
-            }
-
-            savePosition() {
-                const rect = this.toggleBtn.getBoundingClientRect();
-                localStorage.setItem('togglePosition', JSON.stringify({
-                    x: rect.left,
-                    y: rect.top
-                }));
-            }
-
-            updateBoundaries() {
-                this.maxX = window.innerWidth - this.options.ballSize;
-                this.maxY = window.innerHeight - this.options.ballSize;
-                
-                const rect = this.toggleBtn.getBoundingClientRect();
-                let x = Math.max(this.minX, Math.min(rect.left, this.maxX));
-                let y = Math.max(this.minY, Math.min(rect.top, this.maxY));
-                
-                this.setPosition(x, y);
-                this.savePosition();
-            }
-
-            toggleTheme() {
-                const currentTheme = this.body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                this.setTheme(newTheme, true);
-            }
-
-            setTheme(theme, animate = true) {
-                if (animate) {
-                    this.createRipple();
-                    setTimeout(() => {
-                        this.body.setAttribute('data-theme', theme);
-                        localStorage.setItem('theme', theme);
-                        this.updateColors();
-                        
-                        // 确保CSS变量完全更新后重绘画布
-                        setTimeout(() => {
-                            if (points.length > 0 && canvasVisible) {
-                                forceRedrawCanvas();
-                            }
-                        }, 50);
-                    }, 100);
-                } else {
-                    this.body.setAttribute('data-theme', theme);
-                    localStorage.setItem('theme', theme);
-                    this.updateColors();
-                    
-                    // 确保CSS变量完全更新后重绘画布
-                    setTimeout(() => {
-                        if (points.length > 0 && canvasVisible) {
-                            forceRedrawCanvas();
-                        }
-                    }, 50);
-                }
-            }
-            
-            updateColors() {
-                const isDark = this.body.getAttribute('data-theme') === 'dark';
-                const root = document.documentElement;
-                
-                if (isDark) {
-                    root.style.setProperty('--toggle-bg', '#1a1a1a');
-                    root.style.setProperty('--toggle-shadow', 'rgba(0, 0, 0, 0.5)');
-                } else {
-                    root.style.setProperty('--toggle-bg', '#ffffff');
-                    root.style.setProperty('--toggle-shadow', 'rgba(0, 0, 0, 0.15)');
-                }
-            }
-
-            createRipple() {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                
-                const rect = this.toggleBall.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = rect.width / 2 - size / 2;
-                const y = rect.height / 2 - size / 2;
-                
-                ripple.style.width = ripple.style.height = size + 'px';
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                
-                this.toggleBall.appendChild(ripple);
-                setTimeout(() => ripple.remove(), 800);
-            }
-        }
-        
-        // ========== 画布强制重绘函数 ==========
-        function forceRedrawCanvas() {
-            if (!canvas || !ctx || !canvasVisible) return;
-            
-            // 清空画布
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 如果有点数据，重新绘制
-            if (points.length > 0 && calculatedResults.length > 0) {
-                drawDiagram(calculatedResults);
-            } else {
-                // 绘制坐标轴
-                const allPoints = [O, A, ...points];
-                const { scale, offsetX, offsetY } = calculateViewport(allPoints);
-                drawAxes(scale, offsetX, offsetY);
             }
         }
         
@@ -2311,7 +1865,6 @@
                 try {
                     const content = e.target.result;
                     templates = parseTemplateFile(content);
-                    console.log('加载的模板:', templates);
                     updateTemplateUI();
                     alert(`成功加载 ${Object.keys(templates).length} 个模板`);
                     
@@ -2339,7 +1892,6 @@
                 if (saved) {
                     templates = JSON.parse(saved);
                     updateTemplateUI();
-                    console.log('从本地存储加载模板成功');
                     return true;
                 }
             } catch (e) {
@@ -2350,26 +1902,19 @@
         
         async function loadTemplateFromGitHub() {
             showLoading(true);
+            
             try {
-                console.log('正在从GitHub加载模板文件...');
-                
-                // 尝试多个可能的URL
-                const possibleUrls = [
-                    GITHUB_TEMPLATE_URL,
-                    'https://github.com/Xiaowuyu273637/Five-hole-calculator/blob/main/Template%20Point.txt',
-                ];
-                
                 let content = null;
-                let successUrl = null;
                 
-                for (const url of possibleUrls) {
+                for (const url of GITHUB_URLS) {
                     try {
-                        console.log(`尝试从 ${url} 加载...`);
-                        const response = await fetch(url);
+                        const response = await fetch(url, {
+                            cache: 'no-cache',
+                            mode: 'cors'
+                        });
+                        
                         if (response.ok) {
                             content = await response.text();
-                            successUrl = url;
-                            console.log(`从 ${url} 加载成功`);
                             break;
                         }
                     } catch (error) {
@@ -2378,140 +1923,14 @@
                 }
                 
                 if (!content) {
-                    console.warn('无法从GitHub加载模板，使用内置模板');
-                    // 使用内置模板内容
-                    content = `主轴24模版原点：X0,Y-25.5，示例点：24,-8.7 16.6,19.3 4,19.3 -18.3,17.8 -24,-8.7 -24,-8.7
-120410定位孔：-35,0
-
-下轴24模版原点：X0,Y-25.5，示例点：24,-8.7 18.7,17.8 -16.6,19.3 -24,-8.7
-110010标记孔：23.8,1.5
-
-主轴26.3模版原点：X0,Y-28.0，示例点：26.3,-9.6 18,21.4 -20.1,19.4 -26.3,-9.6
-115010排气孔：15.3,-21.2 -18.6,-18.7
-115010定位孔：-37,0
-226110定位孔：20.6,-19 3.8,19.5 -28,1.3
-228110排气孔：15.3,-21.2 -18.6,-18.7
-222810排气孔：15.3,-21.2 -18.6,-18.7
-229410排气孔：15.3,-21.2 -18.6,-18.7
-229410定位孔：0,-38
-235210定位孔：0,-38
-241110定位孔：0,-38
-美的11105815定位孔：-37,0
-115811定位孔：-37,0
-243810定位孔：0,-38
-
-下轴26.3模版原点：X0,Y-28.0，示例点：26.3,-9.6 20.1,19.4 -4,18.6 -18,21.4 -26.3,9.6
-111810排气孔：18.6,-18.7 -15.3,-21.2 
-111810沉孔：23.5,8.6 -20.4,-14.4
-226110定位孔：20.6,-19 3.8,19.5 -28,1.3
-224510排气孔：18.6,-18.7 -15.3,-21.3
-224510排气孔粗铣：-3.6,18.7
-241010标记点：-23.8,1.5
-241910标记点：-23.8,1.5
-141310排气孔：15.3,-21.2 -18.6,-18.7
-141310定位孔：-37,0
-141310标记孔：-22,5
-
-主轴27.7模版原点：X0,Y-29.5，示例点：27.7,-10.2 19,22.6 3.8,21 -21.5,20.2 -27.7,-10.2
-223710排气孔：16.5,-23.5 -16.5,-23.5
-223710定位孔：0,-38
-224610排气孔：16.5,-23.5 -16.5,-23.5
-224610定位孔：0,-38
-227210排气孔：16.5,-23.5 -16.5,-23.5
-227210定位孔：0,-38
-233310排气孔：16.5,-23.5 -16.5,-23.5
-233310定位孔：0,-38
-224610排气孔：16.5,-23 -20,-20
-224610定位孔：0,-38
-242010排气孔：16.5,-23.5 -16.5,-23.5
-242010定位孔：0,-38
-230210排气孔：16.5,-23 -20,-20
-230210定位孔：0,-38
-243110排气孔：15,-24.5 -15,-24.5
-243110定位孔：0,-38
-231910定位孔：0,-38
-227811定位孔：0,-38
-240911排气孔：13.2,-25.8 -20.5,-20.5
-240911排气孔：13.2,-25.8 -29,0 -20.5,-20.5
-英维克L6151510排气孔：16.5,-23.5 -16.5,-23.5
-英维克L6151510定位孔：0,-38
-
-下轴27.7模版原点：X0,Y-29.5，示例点：27.7,-10.2 21.5,20.2 -3.8,21 -19,22.6 -27.7,-10.2
-英维克L6160510排气孔：16.5,-23.5 -16.5,-23.5
-英维克L6160110标记点：-26,2
-241310排气孔：15,-24.5 -15,-24.5
-242210排气孔：16.5,-23 -16.5,-23
-244910排气孔：16.5,-23 -16.5,-23
-244910定位孔：0,-38
-
-主轴28.7模版原点：X0,Y-30.5 示例点：28.7,-10.4 19.6,23.4 4.6,22.8 -21.9,21.2 -28.7,-10.4
-360110定位孔：17,-24.9 -35.5,-24.7
-360410定位孔：17,-24.9 -35.5,-24.7
-320210排气孔：16,-25.4 -35.5,-24.7 -16.1,25.4
-320210定位孔：-35.5,-24.7
-356720定位孔：-35.5,-24.7
-356720排气孔：16.1,-25.4 -16.1,-25.4
-354810定位孔：14.5,-43.6 39,22.5 -39,22.5
-357010定位孔：-35.5,-24.7
-357010排气孔：16.1,-25.4 -16.1,-25.4
-357710定位孔：-35.5,-24.7
-357710排气孔：16.1,-25.4 -16.1,-25.4
-300210定位孔：-35.5,-24.7
-300210排气孔：16.1,-25.4 -16.1,-25.4
-
-下轴28.7模版原点：X0,Y-30.5，示例点：28.7,-10.4 21.2,21.9 -4.6,22.8 -19.6,23.4 -28.7,-10.4
-352910排气孔：16.1,-25.4 -16.1,-25.4
-353610排气孔：16.1,-25.4 -16.1,-25.4
-
-主轴33模版原点：X0,Y-35.0，示例点：33,-11 22,27 4.8,22.9 -24.4,25.1 -33,-11
-390611定位孔：-38,-25.5
-392310排气孔：18.3,-26.7 -18.7,-26.7
-392310沉孔：-2.5,-47.4 42.3,21.6 -39.8,25.9
-522010排气孔：20.3,-27.9 -33.4,8.3 -20.3,-27.9
-
-下轴33模版原点：X0,Y-35.0，示例点：33,-11 24,25.3 -4.6,25.9 -22,27 -33,-11
-521610排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
-522310排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
-522510排气孔：20.3,-27.9 -20.3,-27.9
-522510沉孔：32,11.5 -27.8,-19.5
-516820排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
-521710排气孔：20.3,-27.9 33.4,8.3 -20.3,-27.9
-
-主轴37.2模版原点：X0,Y-39.0，示例点：37.2,-11.9 24.4,30.4 4.8,26.3 -27.6,27.6 -37.2,-11.9
-632710排气孔：22.5,-30.6 -22.5,-30.6
-632710定位孔：4.8,26.3 -33,-43
-631210排气孔：22.5,-30.6 -35.5,13.5 -22.5,-30.6
-631210定位孔：4.8,26.3 -33,-43
-
-主轴38.1模版原点：X0,Y-40，示例点：38.1,-12.2 25.1,31.2 5.4,28 -28.3,28.3 -22.5,-30.6
-712810排气孔：11.5,-36.2 22.5,-30.6 -38,6.5 -22.5,-30.6
-712810定位孔：-12,-34 -33.3,-47.5
-
-特别版28.7模版原点：X0,Y-30.5，示例点：16.1,-25.4 28.7,-10.4 21.2,21.9 -4.6,22.8 -19.6,23.4 -28.7,-10.4 -16.1,-25.4
-338910沉孔：28,12.4 -24.5,-18.3
-339110沉孔：28,12.4 -24.5,-18.3
-392010定位孔：-35.5,-24.7
-300210沉孔：28,12.4 -24.5,-18.3
-
-特别版33模版原点：X0,Y-35.0，示例点：19,-27.7 33,-11 22,27 4.6,24.5 -24.4,25.1 -33,-11 -19,-27.7
-392510定位孔：14,44.5 -35.5,-24.7
-
-下轴特别版33模版原点：X0,Y-35.0，示例点：19,-27.7 33,-11 24.4,25.1 -4.6,24.5 -22,27 -33,-11 -19,-27.7
-300410沉孔：17.4,-25.3 -17.4,-25.3
-300410沉孔2：32,14.2 -28,-20.9
-338010沉孔：32,14.2 -28,-20.9
-339810沉孔：17.4,-25.3 -17.4,-25.3
-339810沉孔2：32,14.2 -28,-20.9`;
+                    content = FALLBACK_TEMPLATE_CONTENT;
                 }
                 
                 templates = parseTemplateFile(content);
-                console.log(`成功解析 ${Object.keys(templates).length} 个模板`);
-                
                 updateTemplateUI();
                 
                 try {
                     localStorage.setItem('fiveHoleTemplates', JSON.stringify(templates));
-                    console.log('模板已保存到本地存储');
                 } catch (e) {
                     console.log('本地存储不可用');
                 }
@@ -2520,7 +1939,15 @@
                 return true;
             } catch (error) {
                 console.error('加载模板文件失败:', error);
-                alert('加载模板文件失败，请检查网络连接');
+                
+                try {
+                    templates = parseTemplateFile(FALLBACK_TEMPLATE_CONTENT);
+                    updateTemplateUI();
+                } catch (fallbackError) {
+                    console.error('备用模板也加载失败:', fallbackError);
+                    alert('模板加载失败，请检查网络连接或手动上传模板文件');
+                }
+                
                 showLoading(false);
                 return false;
             }
@@ -2659,7 +2086,6 @@
                 loadingDiv.style.display = 'none';
             }
             
-            // 初始化搜索关键词
             categoryOrder.forEach(category => {
                 if (category === '附加模板') {
                     searchKeywords[category] = '';
@@ -2705,6 +2131,64 @@
                 notFoundDiv.classList.remove('hidden');
             } else {
                 notFoundDiv.classList.add('hidden');
+            }
+        }
+        
+        // ========== 附加点函数 ==========
+        function addAdditionalPoint() {
+            const x = parseFloat(document.getElementById('newAdditionalX').value);
+            const y = parseFloat(document.getElementById('newAdditionalY').value);
+            const indexInput = document.getElementById('additionalPointIndex');
+            
+            const pointIndex = parseInt(indexInput.value) || 2;
+            
+            if (isNaN(x) || isNaN(y)) {
+                alert("请输入有效坐标");
+                return;
+            }
+            
+            additionalPoints.push({ 
+                index: pointIndex, 
+                x, 
+                y,
+                subIndex: getNextSubIndex(pointIndex)
+            });
+            
+            updatePointsDisplay();
+            calculateAll();
+            
+            document.getElementById('newAdditionalX').value = '';
+            document.getElementById('newAdditionalY').value = '';
+            
+            if (isMobile && navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+        
+        function getNextSubIndex(mainIndex) {
+            const pointsInGroup = additionalPoints.filter(p => p.index === mainIndex);
+            return pointsInGroup.length + 1;
+        }
+        
+        function getAdditionalPointsByIndex(index) {
+            return additionalPoints.filter(p => p.index === index);
+        }
+        
+        function removeAdditionalPoint(index) {
+            additionalPoints.splice(index, 1);
+            updatePointsDisplay();
+            calculateAll();
+            
+            if (isMobile && navigator.vibrate) {
+                navigator.vibrate(30);
+            }
+        }
+        
+        function updateAdditionalPoint(index, coord, value) {
+            const num = parseFloat(value);
+            if (!isNaN(num)) {
+                additionalPoints[index][coord] = num;
+                calculateAll();
             }
         }
         
@@ -2760,14 +2244,6 @@
                 standardXValue = programPoints[0].x;
                 standardCValue = programPoints[0].c;
             }
-            
-            console.log('标准值计算:', {
-                template: incrementalSelectedTemplate,
-                isCombinationMode: isCombinationMode,
-                standardXValue: standardXValue,
-                standardCValue: standardCValue,
-                programPointsCount: programPoints.length
-            });
         }
         
         function parseProgramPoints(programText) {
@@ -2863,13 +2339,6 @@
             cAdjustment = parseFloat(document.getElementById('cAdjustment').value) || 0;
             
             calculateAdjustedProgram();
-            
-            if (xAdjustment !== 0 || cAdjustment !== 0) {
-                let msg = "调整已应用：\n";
-                if (xAdjustment !== 0) msg += `X值调整：${xAdjustment > 0 ? '+' : ''}${xAdjustment.toFixed(2)}mm\n`;
-                if (cAdjustment !== 0) msg += `C值调整：${cAdjustment > 0 ? '+' : ''}${cAdjustment.toFixed(2)}°`;
-                console.log(msg);
-            }
         }
         
         function resetAdjustments() {
@@ -2908,13 +2377,6 @@
             document.getElementById('adjustedProgramContent').textContent = adjustedProgram;
             
             updateComparisonTable(originalPoints, adjustedProgram);
-            
-            console.log('程序调整计算完成:', {
-                originalPoints: originalPoints.length,
-                xAdjustment: xAdjustment,
-                cAdjustment: cAdjustment,
-                adjustedProgramLength: adjustedProgram.length
-            });
         }
         
         function generateAdjustedProgram(originalProgram, originalPoints) {
@@ -3136,23 +2598,25 @@
         }
         
         function generateProgram() {
-            if (calculatedResults.length === 0 || points.length === 0) {
+            if (points.length === 0 && additionalPoints.length === 0) {
                 return "暂无程序数据，请先加载模板或添加点。";
             }
             
             let program = "";
             
             const currentTemplateName = selectedTemplates.length > 0 ? selectedTemplates[0] : '';
-            const isAdditional = isAdditionalTemplate(currentTemplateName);
+            const isAdditional = isAdditionalTemplate(currentTemplateName) || additionalPoints.length > 0;
             
             const startDistance = calculateDistance(O, A);
             const startDiameter = (startDistance * 2).toFixed(2);
+            
+            const xSign = A.y < 0 ? 1 : -1;
             
             const generateStandardProgram = () => {
                 let prog = `$1\n`;
                 prog += `T0\n`;
                 prog += `G0Z50.0\n`;
-                prog += `X${startDiameter}C0.0\n`;
+                prog += `X${(xSign * parseFloat(startDiameter)).toFixed(2)}C0.0\n`;
                 prog += `Z2.0\n`;
                 prog += `G83Z-15.3R2.0F300\n`;
                 
@@ -3170,46 +2634,42 @@
                         if (isTemplateAdditional) {
                             for (let i = 0; i < templatePoints.length; i++) {
                                 const point = templatePoints[i];
-                                const distanceToCenter = calculateDistance(O, point);
-                                const diameter = (distanceToCenter * 2).toFixed(2);
+                                const distance = calculateDistance(O, point);
+                                const diameter = (distance * 2).toFixed(2);
                                 
                                 let angle;
                                 if (i === 0) {
                                     angle = calculateSectorAngle(O, A, point);
                                 } else {
-                                    const prevPoint = templatePoints[i-1];
-                                    angle = calculateSectorAngle(O, prevPoint, point);
-                                    
-                                    if (Math.abs(angle) < 5) {
-                                        angle = -angle;
-                                    }
+                                    const prevTemplatePoint = templatePoints[i-1];
+                                    angle = calculateSectorAngle(O, prevTemplatePoint, point);
                                 }
                                 
-                                prog += `X${diameter}C${angle.toFixed(2)}\n`;
+                                prog += `X${(xSign * parseFloat(diameter)).toFixed(2)}C${angle.toFixed(2)}\n`;
                             }
                         } else {
                             let cumulativeAngle = 0;
                             for (let i = 0; i < templatePoints.length; i++) {
                                 const point = templatePoints[i];
-                                const distanceToCenter = calculateDistance(O, point);
-                                const diameter = (distanceToCenter * 2).toFixed(2);
+                                const distance = calculateDistance(O, point);
+                                const diameter = (distance * 2).toFixed(2);
                                 
                                 const resultIndex = pointIndex + i;
                                 if (resultIndex < calculatedResults.length) {
                                     cumulativeAngle += parseFloat(calculatedResults[resultIndex].angle);
                                 }
                                 
-                                prog += `X${diameter}C${cumulativeAngle.toFixed(2)}\n`;
+                                prog += `X${(xSign * parseFloat(diameter)).toFixed(2)}C${cumulativeAngle.toFixed(2)}\n`;
                             }
                         }
                         
                         pointIndex += templatePoints.length;
                     }
-                } else if (isAdditional) {
+                } else if (isAdditional || additionalPoints.length > 0) {
                     for (let i = 0; i < points.length; i++) {
                         const point = points[i];
-                        const distanceToCenter = calculateDistance(O, point);
-                        const diameter = (distanceToCenter * 2).toFixed(2);
+                        const distance = calculateDistance(O, point);
+                        const diameter = (distance * 2).toFixed(2);
                         
                         let angle;
                         if (i === 0) {
@@ -3223,20 +2683,56 @@
                             }
                         }
                         
-                        prog += `X${diameter}C${angle.toFixed(2)}\n`;
+                        prog += `X${(xSign * parseFloat(diameter)).toFixed(2)}C${angle.toFixed(2)}\n`;
                     }
+                    
+                    const groupedAdditionalPoints = {};
+                    additionalPoints.forEach(point => {
+                        if (!groupedAdditionalPoints[point.index]) {
+                            groupedAdditionalPoints[point.index] = [];
+                        }
+                        groupedAdditionalPoints[point.index].push(point);
+                    });
+                    
+                    Object.keys(groupedAdditionalPoints).sort((a, b) => a - b).forEach(index => {
+                        const pointsInGroup = groupedAdditionalPoints[index];
+                        
+                        for (let i = 0; i < pointsInGroup.length; i++) {
+                            const point = pointsInGroup[i];
+                            const distance = calculateDistance(O, point);
+                            const diameter = (distance * 2).toFixed(2);
+                            
+                            let angle;
+                            if (i === 0) {
+                                if (points.length > 0 && index == Math.min(...Object.keys(groupedAdditionalPoints).map(k => parseInt(k)))) {
+                                    angle = calculateSectorAngle(O, points[points.length - 1], point);
+                                } else {
+                                    angle = calculateSectorAngle(O, A, point);
+                                }
+                            } else {
+                                const prevPoint = pointsInGroup[i-1];
+                                angle = calculateSectorAngle(O, prevPoint, point);
+                                
+                                if (Math.abs(angle) < 5) {
+                                    angle = -angle;
+                                }
+                            }
+                            
+                            prog += `X${(xSign * parseFloat(diameter)).toFixed(2)}C${angle.toFixed(2)}\n`;
+                        }
+                    });
                 } else {
                     let cumulativeAngle = 0;
                     for (let i = 0; i < points.length; i++) {
                         const point = points[i];
-                        const distanceToCenter = calculateDistance(O, point);
-                        const diameter = (distanceToCenter * 2).toFixed(2);
+                        const distance = calculateDistance(O, point);
+                        const diameter = calculateDiameter(distance);
                         
                         if (i < calculatedResults.length) {
                             cumulativeAngle += parseFloat(calculatedResults[i].angle);
                         }
                         
-                        prog += `X${diameter}C${cumulativeAngle.toFixed(2)}\n`;
+                        prog += `X${(xSign * parseFloat(diameter)).toFixed(2)}C${cumulativeAngle.toFixed(2)}\n`;
                     }
                 }
                 
@@ -3256,7 +2752,7 @@
             return program;
         }
         
-        // ========== 模板库函数（移动端优化） ==========
+        // ========== 模板库函数 ==========
         function toggleTemplatePanel() {
             const panel = document.getElementById('templatePanel');
             const overlay = document.getElementById('templateOverlay');
@@ -3288,7 +2784,6 @@
             document.getElementById('calculator-tab').classList.toggle('active', tabNumber === 1);
             document.getElementById('incremental-tab').classList.toggle('active', tabNumber === 2);
             
-            // 切换标签页时自动关闭模板库
             closeTemplatePanel();
             
             if (tabNumber === 2) {
@@ -3316,23 +2811,21 @@
                     points = [...template.points];
                 }
                 
+                additionalPoints = [];
+                
                 updatePointsDisplay();
                 calculateAll();
                 
-                // 更新递增计算器的模板选择
                 incrementalSelectedTemplate = templateName;
                 document.getElementById('templateInfoText').textContent = templateName;
                 calculateStandardValues();
                 updateIncrementalDisplay();
                 showStandardValueInfo();
                 
-                // 更新调整值显示
                 resetAdjustments();
                 
-                // 关闭模板库
                 closeTemplatePanel();
                 
-                // 移动端震动反馈
                 if (isMobile && navigator.vibrate) {
                     navigator.vibrate(100);
                 }
@@ -3365,7 +2858,6 @@
             
             templateSelect.value = "";
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3375,7 +2867,6 @@
             selectedTemplates.splice(index, 1);
             updateSelectedTemplatesDisplay();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(30);
             }
@@ -3405,7 +2896,6 @@
             selectedTemplates = [];
             updateSelectedTemplatesDisplay();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3444,10 +2934,11 @@
                 }
             });
             
+            additionalPoints = [];
+            
             updatePointsDisplay();
             calculateAll();
             
-            // 更新递增计算器的模板选择
             if (selectedTemplates.length === 1) {
                 incrementalSelectedTemplate = selectedTemplates[0];
                 document.getElementById('templateInfoText').textContent = incrementalSelectedTemplate;
@@ -3461,10 +2952,8 @@
                 document.getElementById('standardValueHighlight').style.display = 'none';
             }
             
-            // 关闭模板库
             closeTemplatePanel();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(100);
             }
@@ -3519,7 +3008,6 @@
             document.getElementById('newX').value = '';
             document.getElementById('newY').value = '';
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3560,6 +3048,42 @@
                 `;
                 container.appendChild(div);
             });
+            
+            const groupedAdditionalPoints = {};
+            additionalPoints.forEach(point => {
+                if (!groupedAdditionalPoints[point.index]) {
+                    groupedAdditionalPoints[point.index] = [];
+                }
+                groupedAdditionalPoints[point.index].push(point);
+            });
+            
+            Object.keys(groupedAdditionalPoints).sort((a, b) => a - b).forEach(index => {
+                const pointsInGroup = groupedAdditionalPoints[index];
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.style.padding = '5px 10px';
+                groupHeader.style.backgroundColor = 'var(--code-bg)';
+                groupHeader.style.borderRadius = '4px';
+                groupHeader.style.marginTop = '10px';
+                groupHeader.style.fontSize = '0.9em';
+                groupHeader.style.color = 'var(--text-color)';
+                groupHeader.textContent = `附加点组 ${index} (共${pointsInGroup.length}个点)`;
+                container.appendChild(groupHeader);
+                
+                pointsInGroup.forEach((point, subIndex) => {
+                    const div = document.createElement('div');
+                    div.className = 'point-item';
+                    div.style.backgroundColor = 'var(--code-bg)';
+                    
+                    div.innerHTML = `
+                        <span>点 ${index}-${point.subIndex || (subIndex + 1)} (附加点):</span>
+                        <input type="number" value="${point.x}" onchange="updateAdditionalPoint(${additionalPoints.findIndex(p => p === point)}, 'x', this.value)" step="0.1" inputmode="decimal">
+                        <input type="number" value="${point.y}" onchange="updateAdditionalPoint(${additionalPoints.findIndex(p => p === point)}, 'y', this.value)" step="0.1" inputmode="decimal">
+                        <button onclick="removeAdditionalPoint(${additionalPoints.findIndex(p => p === point)})" class="btn-red">删除</button>
+                    `;
+                    container.appendChild(div);
+                });
+            });
         }
         
         function updatePoint(index, coord, value) {
@@ -3575,7 +3099,6 @@
             updatePointsDisplay();
             calculateAll();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(30);
             }
@@ -3583,6 +3106,7 @@
         
         function clearAll() {
             points = [];
+            additionalPoints = [];
             isCombinationMode = false;
             selectedTemplates = [];
             templatePointGroups = [];
@@ -3594,7 +3118,6 @@
             updateProgramDisplay();
             calculateAdjustedProgram();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(100);
             }
@@ -3616,7 +3139,6 @@
                 resizeCanvas();
             }
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3627,7 +3149,6 @@
             updatePointsDisplay();
             calculateAll();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -3647,7 +3168,7 @@
         }
         
         function calculateAll() {
-            if (points.length === 0) {
+            if (points.length === 0 && additionalPoints.length === 0) {
                 clearCanvas();
                 updateProgramDisplay();
                 calculateAdjustedProgram();
@@ -3749,11 +3270,55 @@
                     prevPoint = point;
                 });
                 
+                if (additionalPoints.length > 0) {
+                    const groupedAdditionalPoints = {};
+                    additionalPoints.forEach(point => {
+                        if (!groupedAdditionalPoints[point.index]) {
+                            groupedAdditionalPoints[point.index] = [];
+                        }
+                        groupedAdditionalPoints[point.index].push(point);
+                    });
+                    
+                    Object.keys(groupedAdditionalPoints).sort((a, b) => a - b).forEach(index => {
+                        const pointsInGroup = groupedAdditionalPoints[index];
+                        
+                        for (let i = 0; i < pointsInGroup.length; i++) {
+                            const point = pointsInGroup[i];
+                            let angle;
+                            
+                            if (i === 0) {
+                                if (points.length > 0 && index == Math.min(...Object.keys(groupedAdditionalPoints).map(k => parseInt(k)))) {
+                                    angle = calculateSectorAngle(O, prevPoint, point);
+                                } else {
+                                    angle = calculateSectorAngle(O, A, point);
+                                }
+                            } else {
+                                const prevPointInGroup = pointsInGroup[i-1];
+                                angle = calculateSectorAngle(O, prevPointInGroup, point);
+                            }
+                            
+                            const distance = calculateDistance(O, point);
+                            const diameter = calculateDiameter(distance);
+                            
+                            calculatedResults.push({
+                                name: `附加点 ${index}-${pointsInGroup[i].subIndex || (i + 1)}`,
+                                start: i === 0 ? { ...prevPoint } : { ...pointsInGroup[i-1] },
+                                end: { ...point },
+                                distance: distance.toFixed(2),
+                                angle: angle.toFixed(2),
+                                diameter: diameter
+                            });
+                            
+                            prevPoint = point;
+                        }
+                    });
+                }
+                
                 const finalAngle = calculateSectorAngle(O, prevPoint, A);
                 const finalDiameter = calculateDiameter(startDistance);
                 
                 calculatedResults.push({
-                    name: `扇形 ${points.length + 1}`,
+                    name: `闭合`,
                     start: { ...prevPoint },
                     end: { ...A },
                     distance: startDistance.toFixed(2),
@@ -3767,7 +3332,6 @@
             updateProgramDisplay();
             calculateAdjustedProgram();
             
-            // 移动端震动反馈
             if (isMobile && navigator.vibrate) {
                 navigator.vibrate(30);
             }
@@ -3812,7 +3376,7 @@
         function drawDiagram(results) {
             clearCanvas();
             
-            const allPoints = [O, A, ...points];
+            const allPoints = [O, A, ...points, ...additionalPoints];
             const { scale, offsetX, offsetY } = calculateViewport(allPoints);
             
             const toCanvas = (x, y) => ({
@@ -3842,7 +3406,6 @@
                 ctx.arc(oCanvas.x, oCanvas.y, radius, startAngle, endAngle);
                 ctx.lineTo(oCanvas.x, oCanvas.y);
                 
-                // 使用固定的颜色，不依赖CSS变量
                 const colors = ['#4285f4', '#0f9d58', '#ea4335', '#ff9800', '#9c27b0'];
                 ctx.strokeStyle = colors[index % colors.length];
                 ctx.lineWidth = 2;
@@ -3851,11 +3414,9 @@
                 const midAngle = (startAngle + endAngle) / 2;
                 const labelRadius = radius * 0.5;
                 
-                // 获取当前主题的文字颜色
-                const currentTheme = document.body.getAttribute('data-theme');
-                const textColor = currentTheme === 'dark' ? '#e0e0e0' : '#333333';
-                
-                ctx.fillStyle = textColor;
+                // 使用CSS变量设置文字颜色
+                ctx.fillStyle = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--canvas-text-color').trim();
                 ctx.font = '12px Arial';
                 ctx.fillText(
                     `${result.angle}°`,
@@ -3871,23 +3432,15 @@
                 ctx.fillStyle = color;
                 ctx.fill();
                 
-                // 获取当前主题的文字颜色
-                const currentTheme = document.body.getAttribute('data-theme');
-                const textColor = currentTheme === 'dark' ? '#e0e0e0' : '#333333';
-                
-                ctx.fillStyle = textColor;
+                // 使用CSS变量设置文字颜色
+                ctx.fillStyle = getComputedStyle(document.documentElement)
+                    .getPropertyValue('--canvas-text-color').trim();
                 ctx.font = '10px Arial';
                 ctx.fillText(label, p.x + 8, p.y - 8);
             }
             
-            // 使用当前主题的颜色
-            const currentTheme = document.body.getAttribute('data-theme');
-            const centerColor = currentTheme === 'dark' ? '#34a853' : '#0f9d58';
-            const startColor = '#ea4335'; // 红色保持不变
-            const pointColor = currentTheme === 'dark' ? '#5c9dff' : '#4285f4';
-            
-            drawPoint(O.x, O.y, "圆心 (0,0)", centerColor, 5);
-            drawPoint(A.x, A.y, `起点 (${A.x},${A.y})`, startColor, 5);
+            drawPoint(O.x, O.y, "圆心 (0,0)", '#0f9d58', 5);
+            drawPoint(A.x, A.y, `起点 (${A.x},${A.y})`, '#ea4335', 5);
             
             points.forEach((point, index) => {
                 let pointLabel = `点${index+1}`;
@@ -3909,17 +3462,21 @@
                     pointLabel = `点${templateIndex + 1}-${index - pointCount + 1}`;
                 }
                 
-                drawPoint(point.x, point.y, `${pointLabel} (${point.x},${point.y})`, pointColor, 4);
+                drawPoint(point.x, point.y, `${pointLabel} (${point.x},${point.y})`, '#4285f4', 4);
+            });
+            
+            additionalPoints.forEach((point, index) => {
+                const pointLabel = `点${point.index}-${point.subIndex || (getAdditionalPointsByIndex(point.index).findIndex(p => p === point) + 1)}`;
+                drawPoint(point.x, point.y, `${pointLabel} (${point.x},${point.y})`, '#ff9800', 4);
             });
         }
 
         function drawAxes(scale, offsetX, offsetY) {
+            // 使用CSS变量设置坐标轴颜色
+            const axisColor = getComputedStyle(document.documentElement)
+                .getPropertyValue('--canvas-axis-color').trim();
+            
             ctx.beginPath();
-            
-            // 获取当前主题的轴线颜色
-            const currentTheme = document.body.getAttribute('data-theme');
-            const axisColor = currentTheme === 'dark' ? '#666' : '#ddd';
-            
             ctx.strokeStyle = axisColor;
             ctx.lineWidth = 1;
             
@@ -3932,7 +3489,8 @@
             ctx.lineTo(yAxisX, canvas.height);
             
             ctx.stroke();
-        }        
+        }
+        
         function calculateViewport(points) {
             let minX = Infinity, maxX = -Infinity;
             let minY = Infinity, maxY = -Infinity;
@@ -3969,90 +3527,58 @@
         
         // ========== 初始化 ==========
         window.onload = async function() {
-            // 初始化画布
-            initCanvas();
-            
-            // 初始化悬浮球
-            const toggle = new EdgeHideToggle({
-                ballSize: isMobile ? 50 : 60,
-                hideThreshold: 30,
-                hideDelay: 2000,
-                longPressDelay: 300,
-                clickMaxMove: isMobile ? 10 : 5,
-                deceleration: 0.95,
-                minVelocity: 0.5,
-                enableInertia: true,
-                enableEdgeHide: true,
-                enableVibrate: isMobile
-            });
-            
-            // 移动端提示
-            if (isMobile) {
-                setTimeout(() => {
-                    const hint = document.getElementById('touchHint');
-                    if (hint) {
-                        hint.style.display = 'block';
-                        setTimeout(() => {
-                            hint.style.display = 'none';
-                        }, 5000);
+            try {
+                initCanvas();
+                
+                // 显示移动端提示（1分钟后消失）
+                showTouchHint();
+                
+                if (!loadTemplatesFromLocalStorage()) {
+                    await loadTemplateFromGitHub();
+                }
+                
+                document.getElementById('programName').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        exportProgram();
                     }
-                }, 1000);
-            }
-            
-            // 尝试从本地存储加载模板
-            if (!loadTemplatesFromLocalStorage()) {
-                // 从GitHub加载模板
-                await loadTemplateFromGitHub();
-            }
-            
-            // 绑定事件
-            document.getElementById('programName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    exportProgram();
-                }
-            });
-            
-            ['xAdjustment', 'cAdjustment'].forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', function() {
-                        calculateAdjustedValues();
-                        calculateAdjustedProgram();
+                });
+                
+                ['xAdjustment', 'cAdjustment'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', function() {
+                            calculateAdjustedValues();
+                            calculateAdjustedProgram();
+                        });
+                    }
+                });
+                
+                const additionalPointIndexInput = document.getElementById('additionalPointIndex');
+                if (additionalPointIndexInput) {
+                    additionalPointIndexInput.addEventListener('input', function() {
+                        const value = parseInt(this.value);
+                        if (!isNaN(value) && value >= 1) {
+                            currentAdditionalPointIndex = value;
+                        }
                     });
                 }
-            });
-            
-            // 添加ESC键关闭模板库
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeTemplatePanel();
-                    closeProgramNameModal();
+                
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeTemplatePanel();
+                        closeProgramNameModal();
+                    }
+                });
+                
+                // 默认加载一个模板
+                if (templates['主轴33']) {
+                    loadTemplate('主轴33', true);
                 }
-            });
-            
-            // 默认加载主轴33模板
-            if (templates['主轴33']) {
-                loadTemplate('主轴33', true);
-            }
-            
-            // 移动端优化：防止键盘弹出时页面滚动
-            const inputs = document.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    setTimeout(() => {
-                        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 300);
-                });
-            });
-            
-            // 修复移动端按钮点击
-            if (isMobile) {
-                document.querySelectorAll('button').forEach(button => {
-                    button.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        this.click();
-                    });
-                });
+                
+                console.log('五孔计算器初始化完成');
+            } catch (error) {
+                console.error('初始化错误:', error);
+                alert('初始化失败，请刷新页面重试');
             }
         };
     </script>
